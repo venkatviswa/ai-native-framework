@@ -11,8 +11,8 @@ Two plugins in one marketplace:
 
 | Plugin | For | Version |
 |---|---|---|
-| [`ainf`](plugins/ainf) | The core chain on any codebase you control: artifacts, five human gates, requirement-ID traceability, drift checks, change requests, reviews and retros. | 0.5.0 |
-| [`ainf-engagements`](plugins/ainf-engagements) | The same chain in consulting: discovery → POC → SOW, phased delivery with sprints, SIT, UAT and go-live, and read-only incident response. Requires `ainf`. | 0.5.0 |
+| [`ainf`](plugins/ainf) | The core chain on any codebase you control: artifacts, five human gates, requirement-ID traceability, drift checks, change requests, reviews and retros. | 0.6.0 |
+| [`ainf-engagements`](plugins/ainf-engagements) | The same chain in consulting: an engagement workspace of ID'd ledgers, discovery → POC → SOW, phased delivery with sprints, SIT, UAT and go-live, read-only incident response and red-account escalations, and readouts generated from the ledgers. Requires `ainf`. | 0.6.0 |
 
 ---
 
@@ -165,7 +165,9 @@ Longer explanations live in [`docs/`](docs/README.md), one page per idea, so thi
 
 - [**Concepts: IDs, drift and drift-check**](docs/concepts.md): why every artifact has stable IDs, the two kinds of drift, every drift-check mode and how to fix what it reports, guidance vs enforcement.
 - **Artifact guides.** Each covers what the file is for, who owns it, every section, and weak vs strong examples:
-  [constitution.md](docs/artifacts/constitution.md) · [CLAUDE.md](docs/artifacts/claude-md.md) · [intent.md](docs/artifacts/intent.md) · [spec.md](docs/artifacts/spec.md) · [plan.md](docs/artifacts/plan.md) · [tasks.md](docs/artifacts/tasks.md) · [CR-n.md](docs/artifacts/change-request.md)
+  [constitution.md](docs/artifacts/constitution.md) · [CLAUDE.md](docs/artifacts/claude-md.md) · [intent.md](docs/artifacts/intent.md) · [spec.md](docs/artifacts/spec.md) · [plan.md](docs/artifacts/plan.md) · [tasks.md](docs/artifacts/tasks.md) · [stories.md](docs/artifacts/stories.md) · [CR-n.md](docs/artifacts/change-request.md)
+- [**Engagements: the workspace and the ledger check**](docs/engagements.md): why engagement documents drift, the F-/D-/A-/Q-/RISK-/GAP- ledgers, the rules that keep them honest, and how discovery, escalation and readouts use them.
+- [**Mappings**](docs/mappings/README.md): how the chain fits SAFe, Shape Up and Team Topologies.
 - **Placeholder templates** for each artifact are in [`plugins/ainf/templates/`](plugins/ainf/templates/). `/ainf:init` copies them into your repo, and the skills fill them in. See [How the templates reach your project](docs/README.md#how-the-templates-reach-your-project).
 
 ---
@@ -210,9 +212,9 @@ flowchart TB
     end
 
     subgraph ENG["ainf-engagements plugin (optional)"]
-        ESK["Skills (9)<br/>discovery, poc, sow, phased, sprint,<br/>sit-uat, traceability, golive, incident"]
+        ESK["Skills (12)<br/>workspace, discovery, poc, sow, phased, sprint,<br/>sit-uat, traceability, golive, incident,<br/>escalation, readout"]
         EAG["sow-reviewer"]
-        ESC["engagement-check.mjs<br/>labels · sow · matrix"]
+        ESC["engagement-check.mjs<br/>labels · sow · matrix · ledger"]
     end
 
     subgraph REPO["Your repository (owned by the team)"]
@@ -308,13 +310,13 @@ sequenceDiagram
 
 ### Three engagement shapes
 
-The artifacts stay the same across engagements. What changes is what each one contains, how heavy the gates are, and where the risk sits.
+The artifacts stay the same across engagements. What changes is what each one contains, how heavy the gates are, and where the risk sits. Under every shape sits the same workspace: facts, decisions, actions, questions, risks and gaps, each written once with an ID, plus a status snapshot and a journal ([docs/engagements.md](docs/engagements.md)).
 
 ```mermaid
 flowchart TB
     subgraph D["Discovery (pre-SOW)"]
         direction LR
-        d1["discovery-notes.md<br/><i>what was said</i>"] --> d2["intent.md (hypothesis)<br/><i>every line labelled + sourced</i>"]
+        d1["notes/ + facts.md<br/><i>what was said, written once</i>"] --> d2["intent.md (hypothesis)<br/><i>every line labelled + sourced</i>"]
         d2 --> d3["poc-spec + poc-plan<br/><i>one claim that can fail</i>"]
         d3 --> d4["poc-result.md"] --> d5["sow.md<br/><i>every item cites R#</i>"]
     end
@@ -325,10 +327,11 @@ flowchart TB
         p4 --> p5["traceability.md"] --> p6["cutover.md<br/>go / no-go"]
         p2 -. "spec change" .-> cr["/ainf:cr"]
     end
-    subgraph IN["Incident / red account"]
+    subgraph IN["Incident → escalation"]
         direction LR
         i1["incident.md<br/>restore first"] --> i2["observed vs expected<br/>timeline"] --> i3["≤ 5 ranked hypotheses<br/>cheapest check each"]
         i3 --> i4["evidence log<br/>read-only agent"] --> i5["named human<br/>approves prod changes"] --> i6["fix reproduced first<br/>spec + test updated"]
+        i6 -. "recurring / still red" .-> e1["escalation<br/>verify → RCA → contain, cure → exit"]
     end
 ```
 
@@ -374,12 +377,19 @@ Invoke a skill as `/ainf:<name>`. Every skill except `init` also triggers automa
 
 Invoke a skill as `/ainf-engagements:<name>`. The worked platform is Salesforce (Service Cloud, Flow, Apex, sandboxes). Each skill notes the cloud-native equivalent (Kafka, Postgres, Kubernetes), and [`references/platforms.md`](plugins/ainf-engagements/references/platforms.md) compares the two.
 
+### Workspace and readouts
+
+| Skill | What it does | Writes | Checked by |
+|---|---|---|---|
+| `/ainf-engagements:workspace` | Stamps the engagement workspace: one ledger per kind of thing (facts `F-`, decisions `D-`, actions `A-`, questions `Q-`, risks `RISK-`, gaps `GAP-`, systems `SYS-`/`INT-`), a status snapshot, a prepend-only journal, session notes and workspace rules. Runs the after-session loop. | `docs/<engagement>/*.md` | `engagement-check ledger` |
+| `/ainf-engagements:readout` | Drafts a client readout or steering update from the ledgers: bottom line first, takeaway titles, every claim citing its ID, inferred items worded as approximate, dates only from actions and decisions. Never sends. | `readout-<date>.md` | `engagement-check ledger` |
+
 ### Discovery → POC → SOW
 
 | Skill | What it does | Writes | Mechanical check |
 |---|---|---|---|
-| `/ainf-engagements:discovery` | Confirms client-data handling first, then turns call notes into a **hypothesis** intent. Every line is labelled `[fact · source]`, `[inference · basis]`, `[recommendation · ours]` or `[open question · who resolves]`, and every constraint is marked Known, Assumed or Unknown. | `discovery-notes.md`, `intent.md` | `engagement-check labels` |
-| `/ainf-engagements:poc` | Writes **one** falsifiable claim with pass, fail and inconclusive criteria agreed in advance, a 5-day timebox, sandbox-only boundaries and a "will NOT build" list, then records the verdict against those criteria. | `poc-spec.md`, `poc-plan.md`, `poc-result.md` | IDs via drift-check |
+| `/ainf-engagements:discovery` | Confirms client-data handling first. Session notes are keyed to question IDs with a carry-forward list, facts go to facts.md once, and the **hypothesis** intent labels every line `[fact · F-n]`, `[inference · basis]`, `[recommendation · ours]` or `[open question · Q-n]`. Adds a hypothesis table with dated status, risks vs gaps vs decisions, and SOW entry criteria. | `notes/`, ledgers, `intent.md` | `engagement-check labels`, `ledger` |
+| `/ainf-engagements:poc` | Writes **one** falsifiable claim with pass, fail and inconclusive criteria agreed in advance, a 5-day timebox, sandbox-only boundaries, a test table, a stop-and-ask list and a "will NOT build" list, then records the verdict against those criteria with E- evidence. | `poc-spec.md`, `poc-plan.md`, `poc-result.md` | IDs via drift-check |
 | `/ainf-engagements:sow` | Derives the SOW's traceable core. Objectives come from confirmed facts, scope from boundaries and the POC result, and assumptions from what the POC didn't retire. Acceptance cites R#. "To confirm" items are never priced. Then dispatches `sow-reviewer`. | `sow.md` | `engagement-check sow` |
 
 ### Phased delivery
@@ -392,11 +402,12 @@ Invoke a skill as `/ainf-engagements:<name>`. The worked platform is Salesforce 
 | `/ainf-engagements:traceability` | Builds a matrix of each requirement against its unit tests, SIT cases, UAT scenarios and inspections, then a fit review, because code coverage is not requirement coverage. | `traceability.md` | `engagement-check matrix` |
 | `/ainf-engagements:golive` | Drafts a cutover runbook from plan.md: owners, timings, rollback trigger, point of no return and hypercare. Gives a go/no-go recommendation with evidence. **Never deploys.** | `cutover.md` | `drift-check --complete` |
 
-### Incident
+### Incident and escalation
 
 | Skill | What it does | Writes |
 |---|---|---|
-| `/ainf-engagements:incident` | Locks the session down with the read-only incident profile, then keeps one living document. The agent may only read and reproduce; every production-changing action is listed as needing human approval. Fixes are reproduced first and deployed by a human. Customer updates are drafted, never sent. | `docs/incident-<date>-<slug>/incident.md`, `.claude/settings.incident.json` |
+| `/ainf-engagements:incident` | For an acute outage. Locks the session down with the read-only incident profile, then keeps one living document. The agent may only read and reproduce; every production-changing action is listed as needing human approval. Fixes are reproduced first and deployed by a human. Customer updates are drafted, never sent. Hands off to escalation when the problem recurs. | `docs/incident-<date>-<slug>/incident.md`, `.claude/settings.incident.json` |
+| `/ainf-engagements:escalation` | For a red account or a chronic problem over weeks, on the workspace. Mission intent with three-tier done (containment shipped, cure held, exit on agreed metrics); identities and topology verified before any analysis; related incidents and a sceptical read of any third-party RCA; hypotheses with confirm and kill tests and decision gates; an RCA with a cause tree; remediation with containment apart from cure and capability tags; monitoring, an exit scorecard and a handover. Read-only throughout. | `intent.md`, `rca-plan.md`, `rca.md`, `remediation.md`, `exit.md` |
 
 The document's sections:
 - Restore first.
@@ -446,6 +457,7 @@ Checks references, not meaning. A person still reviews whether a test proves its
 | `labels <intent.md>` | every bullet carries a label **and** a source; constraints are marked Known, Assumed or Unknown |
 | `sow <sow.md> --spec <spec.md>` | Scope and Acceptance items cite requirements defined in the spec; nothing "to confirm" carries an estimate; Scope, Out of scope and Assumptions sections exist |
 | `matrix <feature-dir> [--write]` | joins requirements to unit tests, `SIT-n`, `UAT-n` and `INS-n` by ID; flags requirements with no verification, cases citing no or unknown IDs, and tests citing nothing. It reuses your repo's `scripts/drift-check.mjs`, so both see tests the same way. |
+| `ledger <engagement-dir>` | every workspace ID (`F-`, `H-`, `E-`, `D-`, `A-`, `Q-`, `RISK-`, `GAP-`, `SYS-`, `INT-`, `INC-`) is defined once and cited only where it exists and is current, readouts included; actions have an owner and a real date; accepted decisions have an approver and a reversal condition; facts have a label and a source; status.md is not behind the journal. See [docs/engagements.md](docs/engagements.md). |
 
 ### SessionStart hook
 
@@ -456,6 +468,7 @@ AI-native SDLC artifacts in this repo (files are the source of truth; read them 
 - docs/reminders [REM]: intent APPROVED v1.0 · spec APPROVED v1.1 · plan APPROVED v1.0 · tasks 6/9
 - docs/northfield: intent DRAFT (hypothesis) (2 BLOCKING) · poc-spec DRAFT · sow DRAFT
 - docs/incident-2026-10-09-case-locks: incident OPEN
+- docs/escalation-batch-timeouts: workspace status 2026-10-12 · intent DRAFT · rca DRAFT · remediation DRAFT
 ```
 
 ---
@@ -546,12 +559,13 @@ plugins/ainf/                        core plugin
   templates/                         constitution, CLAUDE.md, githooks, CI, permission profiles
   templates/docs/                    intent, spec, plan, tasks, stories, cr placeholder templates
 plugins/ainf-engagements/            engagements plugin
-  skills/<name>/SKILL.md             9 skills with templates
+  skills/<name>/SKILL.md             12 skills with templates
   agents/sow-reviewer.md
   scripts/engagement-check.mjs
   references/platforms.md            Salesforce and cloud-native comparison
   templates/settings.incident.json   read-only incident profile
-docs/                                reference: concepts.md and one guide per artifact
+  templates/workspace/               engagement ledgers, status, journal, notes, workspace CLAUDE.md
+docs/                                reference: concepts, engagements, one guide per artifact, mappings
 test/                                node:test suites for both scripts, init and the index
 course-map.md                        which course chapter each component comes from
 CHANGELOG.md                         release notes
@@ -563,8 +577,8 @@ Claude keeps each skill's and agent's one-line description in context so it can 
 
 | Installed | Always-on, approx. |
 |---|---|
-| `ainf` | ~1,550 tokens |
-| `ainf` + `ainf-engagements` | ~2,750 tokens |
+| `ainf` | ~1,650 tokens |
+| `ainf` + `ainf-engagements` | ~3,350 tokens |
 
 If you don't do consulting work, install only `ainf`.
 
@@ -591,6 +605,7 @@ While the version is `0.x`, minor releases may still adjust conventions, and eac
 
 | Version | Date | Summary |
 |---|---|---|
+| **0.6.0** | 2026-10-12 | Engagement workspace: one ledger per kind of thing (facts, decisions, actions, questions, risks, gaps, systems) with IDs like `F-3` and `D-2`, a status snapshot and a prepend-only journal, checked by `engagement-check ledger`. New skills: workspace, escalation (red accounts: verify first, contain, cure, prove it held, exit) and readout (client updates generated from the ledgers). Discovery and POC run on the workspace; incident covers acute outages and hands off to escalation. **Convention change:** incident hypotheses and evidence are `H-1` and `E-1` (were `H1`, `E1`). Adds `docs/engagements.md` and SAFe, Shape Up and Team Topologies mappings. |
 | **0.5.0** | 2026-10-12 | Namespaced IDs: a spec.md with `ID prefix: REM` owns `REM-R1`, `REM-AC1`, `REM-T1`, so two features can both have an `AC1`. Short IDs still work inside a feature's own docs, and repos without prefixes behave as before, with a note when unprefixed features share IDs. New `/ainf:stories` skill and `drift-check --stories [--csv]`: backlog keys mapped to requirement IDs, with coverage per story. drift-check reads every spec even with `--feature`, so cross-feature citations resolve. engagement-check understands prefixes. |
 | **0.4.0** | 2026-10-12 | Reference docs in `docs/`: concepts (IDs, drift, drift-check) and a guide per artifact. Placeholder templates for intent, spec, plan, tasks and CR now live in `plugins/ainf/templates/docs/`; `/ainf:init` stamps them into `docs/_templates/` and the skills prefer the repo's copy. Constitution gains an Approvers table used by `/ainf:gate`; CLAUDE.md gains Project and Where things live. drift-check skips `_`-prefixed doc folders. Adds the MIT license. |
 | **0.3.0** | 2026-10-12 | New `ainf-engagements` plugin with 9 skills: discovery, poc, sow, phased, sprint, sit-uat, traceability, golive and incident. Adds the `sow-reviewer` agent, `engagement-check.mjs` (labels, sow, matrix), a read-only incident permission profile and Salesforce/cloud-native platform notes. Core: drift-check reads per-sprint `tasks-*.md` files and exports its helpers, and the session index shows sprint and engagement artifacts. |
@@ -599,9 +614,8 @@ While the version is `0.x`, minor releases may still adjust conventions, and eac
 
 ## Roadmap
 
-- **0.6**
-  - Governance pack: managed-settings examples, secret-scanning, and an adoption scorecard.
-  - Enterprise mappings for SAFe, Shape Up and Team Topologies.
+- **Next**
+  - 0.7: governance pack: managed-settings examples, secret-scanning, and an adoption scorecard.
 - **Later**
   - Evals for each skill (`claude plugin eval`).
   - More platform references.
@@ -612,6 +626,7 @@ While the version is `0.x`, minor releases may still adjust conventions, and eac
 - `drift-check` checks references, not meaning. A test named `AC1` that asserts nothing still counts. That's why Gate 5 reads the assertions.
 - The pre-commit boundary check sees staged paths, not intent. A person can still bypass hooks with `--no-verify`. The code profile denies that flag to the agent, and CI re-runs the check.
 - `engagement-check matrix` needs `scripts/drift-check.mjs` from ainf 0.3 or later in the target repo.
+- `engagement-check ledger` checks that workspace IDs are consistent, not that the entries are true. It recognises definitions only in tables whose first column is the ID, or in headings that start with it.
 
 ## Development
 

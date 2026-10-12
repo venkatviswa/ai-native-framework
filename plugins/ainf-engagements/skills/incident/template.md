@@ -7,7 +7,7 @@ Commander: [name] · Operations lead: [name] · Communications lead: [name] · A
 [One paragraph: what users cannot do, the restore goal, then root cause, then trust.]
 
 ## Observed vs expected
-- Observed: [behaviour, with evidence reference E1]
+- Observed: [behaviour, with evidence reference E-1]
 - Expected: [behaviour, with spec / requirement ID if one exists]
 - Reproduction: [steps in sandbox / not yet reproduced]
 
@@ -17,9 +17,9 @@ Commander: [name] · Operations lead: [name] · Communications lead: [name] · A
 | [Fri 18:00] | [release 2.4 deployed] | [release notes] |
 
 ## Hypotheses (ranked)
-| # | Hypothesis | Cheapest check that confirms or kills it | Status |
+| ID | Hypothesis | Cheapest check that confirms or kills it | Status |
 |---|---|---|---|
-| H1 | [...] | [bounded read / sandbox repro] | open |
+| H-1 | [...] | [bounded read / sandbox repro] | open |
 
 ## Action boundaries
 - Agent may: read the material provided, run local analysis, reproduce in [sandbox]
@@ -30,9 +30,9 @@ Commander: [name] · Operations lead: [name] · Communications lead: [name] · A
 |---|---|---|---|---|
 
 ## Evidence log
-| # | Time | Who | What was run / read | What it showed |
+| ID | Time | Who | What was run / read | What it showed |
 |---|---|---|---|---|
-| E1 | | | | |
+| E-1 | | | | |
 
 ## Communications
 <!-- Drafts only. A person sends them. Facts, timeline, next update time; no speculation. -->
@@ -42,3 +42,4 @@ Commander: [name] · Operations lead: [name] · Communications lead: [name] · A
 - [ ] Regression test: [test name citing R#]
 - [ ] Runbook updated: [yes / not needed]
 - [ ] Constitution rule: [only if an enduring policy]
+- [ ] Recurring or still red after restore: escalation opened in [docs/escalation-<slug>/], citing this incident as INC-n

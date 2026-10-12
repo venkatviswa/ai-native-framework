@@ -28,9 +28,12 @@ Write `docs/<engagement>/poc-plan.md` from `plan-template.md` in this skill's di
 - the timebox, 5 days by default;
 - the sandbox or environment;
 - the sample data needed, synthetic or masked (never production personal data);
-- the measurement method;
+- the measurement method, and a **test table**: each test, the criterion it proves, and what a pass looks like;
+- a **stop and ask** list: what makes the builder stop and ask a person;
 - **what we will NOT build**;
 - who reviews the result.
+
+Write the plan so an agent could run it unattended: it reads facts.md and the spec, never the call notes, and when anything it finds contradicts facts.md it stops and asks rather than choosing.
 
 The POC's action boundaries are a sandbox only, with no production credentials.
 
@@ -46,6 +49,6 @@ After the POC, write `docs/<engagement>/poc-result.md` from `result-template.md`
 - which intent.md assumptions it retired and which it did not;
 - what changes in the SOW.
 
-Update the labels in intent.md: a retired assumption becomes a `fact · POC result`.
+Update the ledgers: set the hypothesis status in intent.md (confirmed or killed, dated, citing the E- evidence), add what the POC proved to facts.md as `confirmed` with poc-result.md as the source, and update the intent.md label to `fact · F-n`. Close or downgrade the RISK- entries it retired.
 
 Next: `/ainf-engagements:sow`.

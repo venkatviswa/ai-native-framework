@@ -3,12 +3,12 @@
 Verdict: [Held | Failed | Inconclusive] against poc-spec.md vX, [date]
 
 ## Evidence
-| Criterion | Threshold | Measured | Source |
-|---|---|---|---|
-| AC1 (R1) | [≥ 95%] | [value] | [log, report, screenshot path] |
+| ID | Criterion | Threshold | Measured | Source |
+|---|---|---|---|---|
+| E-1 | AC1 (R1) | [≥ 95%] | [value] | [log, report, screenshot path] |
 
 ## Assumptions
-- Retired: [intent.md line] → now `[fact · POC result]`
+- Retired: [H- ID] confirmed or killed on [YYYY-MM-DD] by [E- IDs]; recorded as [F- ID]
 - Not retired: [line], still an assumption in the SOW
 
 ## What changes in the SOW

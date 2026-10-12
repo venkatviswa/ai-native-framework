@@ -1,11 +1,13 @@
 ---
 name: incident
-description: Run a production incident or red-account escalation on a compressed artifact chain - one living docs/incident-<date>-<slug>/incident.md (restore first, observed vs expected with a timeline of changes, up to 5 ranked hypotheses each with its cheapest discriminating check, an evidence log), the agent strictly read-only and bounded, every production-changing action listed as "needs human approval", then reproduce-first fix, update the sources, and draft (never send) customer updates. Use when production is broken, an integration is failing, records are locking, a sponsor is escalating, or the user says incident, outage, sev1 or red account.
+description: Run an acute production incident on a compressed artifact chain - one living docs/incident-<date>-<slug>/incident.md (restore first, observed vs expected with a timeline of changes, up to 5 ranked hypotheses H-n each with its cheapest discriminating check, an evidence log E-n), the agent strictly read-only and bounded, every production-changing action listed as "needs human approval", then reproduce-first fix, update the sources, and draft (never send) customer updates. Use when production is broken right now, an integration is failing, records are locking, or the user says incident, outage or sev1. For a recurring problem or a red account that lasts beyond the restore, hand off to /ainf-engagements:escalation.
 ---
 
 # Incident: restore first, read-only first, a human on every production change
 
 Time pressure is exactly when agents guess most, and when a wrong write to production costs most. Run it as an incident, not a debugging session.
+
+An incident ends when service is restored and the fix is in. If the problem keeps coming back, or the client is still red after the restore, open an escalation with `/ainf-engagements:escalation` and cite this incident there as an INC-.
 
 **Roles.** An incident commander leads. An operations lead does the hands-on work. A communications lead sends the updates. **You are a read-only helper to the operations lead.** Ask who holds each role, and write their names in incident.md.
 
@@ -31,7 +33,7 @@ Sort evidence by the provenance ladder:
 1. A live metric or log outranks the runbook.
 2. The runbook outranks what someone remembers.
 
-Mark eliminated hypotheses **eliminated**, with their evidence. Do not delete them.
+Number hypotheses H-1, H-2 and evidence E-1, E-2, and never renumber. Mark eliminated hypotheses **eliminated**, with their evidence. Do not delete them. `engagement-check.mjs ledger docs/incident-<date>-<slug>` catches a reused number or a citation of evidence that was never logged.
 
 ## 2. Actions that change production
 

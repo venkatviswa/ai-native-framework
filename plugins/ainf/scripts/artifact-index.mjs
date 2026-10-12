@@ -13,7 +13,7 @@ const dir = join(root, featuresDir);
 if (!existsSync(dir)) process.exit(0);
 
 // Core chain first, then the engagement artifacts (ainf-engagements) when present.
-const ARTIFACTS = ['intent.md', 'poc-spec.md', 'spec.md', 'plan.md', 'sow.md', 'incident.md'];
+const ARTIFACTS = ['intent.md', 'poc-spec.md', 'spec.md', 'plan.md', 'sow.md', 'incident.md', 'rca.md', 'remediation.md', 'exit.md'];
 const isTasks = (n) => /^tasks(-[\w.-]+)?\.md$/.test(n);
 const rows = [];
 for (const name of readdirSync(dir).sort()) {
@@ -21,13 +21,18 @@ for (const name of readdirSync(dir).sort()) {
   const files = ARTIFACTS.filter((f) => existsSync(join(dir, name, f)));
   const taskFiles = existsSync(join(dir, name)) && statSync(join(dir, name)).isDirectory()
     ? readdirSync(join(dir, name)).filter(isTasks) : [];
-  if (!files.length && !taskFiles.length) continue;
+  // An engagement workspace (ainf-engagements 0.6) shows when its snapshot was last refreshed.
+  const ws = existsSync(join(dir, name, 'status.md'))
+    ? (readFileSync(join(dir, name, 'status.md'), 'utf8').match(/Last updated:?\**\s*(\d{4}-\d{2}-\d{2})/i) || [])[1] || 'undated'
+    : null;
+  if (!files.length && !taskFiles.length && !ws) continue;
   const parts = files.map((f) => {
     const text = readFileSync(join(dir, name, f), 'utf8');
     const status = (text.match(/^Status:\s*(.+)$/m) || [])[1]?.trim() || 'no status';
     const blocking = (text.match(/BLOCKING:/g) || []).length;
-    return `${f.replace('.md', '')} ${status.split(/\s+\(/)[0]}${blocking ? ` (${blocking} BLOCKING)` : ''}`;
+    return `${f.replace('.md', '')} ${status.split(/\s+\(|\s+·\s+/)[0]}${blocking ? ` (${blocking} BLOCKING)` : ''}`;
   });
+  if (ws) parts.unshift(`workspace status ${ws}`);
   if (taskFiles.length) {
     const text = taskFiles.map((f) => readFileSync(join(dir, name, f), 'utf8')).join('\n');
     const done = (text.match(/^\s*[-*]\s+\[[xX]\]/gm) || []).length;

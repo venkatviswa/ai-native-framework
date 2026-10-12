@@ -29,5 +29,8 @@ Where each part of the plugin comes from in *The Architect's AI-Native SDLC*. Wh
 | Cut a sprint; SIT and UAT from the spec; traceability matrix | `ainf-engagements/skills/sprint`, `skills/sit-uat`, `skills/traceability`, `engagement-check matrix` | v0.3 |
 | Go-live: cutover, rollback, go / no-go | `ainf-engagements/skills/golive` | v0.3 |
 | Red account: incident chain, action boundaries, aftermath | `ainf-engagements/skills/incident`, `templates/settings.incident.json` | v0.3 |
+| Red account beyond the restore: contain, cure, prove it held | `ainf-engagements/skills/escalation` (incident hands off to it) | v0.6 |
 | Three engagements compared; cloud-native | `ainf-engagements/references/platforms.md` | v0.3 |
-| Tool landscape, governance, adoption, SAFe / Shape Up / Team Topologies | README and docs only; no component | n/a |
+| SAFe / Shape Up / Team Topologies | `docs/mappings/` | v0.6 |
+| Tool landscape, governance, adoption | README and docs only; no component | n/a |
+| Field practice, not a course chapter: engagement documents drift like code | `ainf-engagements/skills/workspace`, `templates/workspace/`, `skills/readout`, `engagement-check ledger`, `docs/engagements.md` | v0.6 |

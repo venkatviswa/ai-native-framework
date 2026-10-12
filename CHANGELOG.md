@@ -4,6 +4,24 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ## [Unreleased]
 
+## [0.6.0] - 2026-10-12
+
+Engagement workspace, escalations and readouts.
+
+### Added
+- `ainf-engagements`: `/ainf-engagements:workspace` and `templates/workspace/`. One ledger per kind of thing (facts `F-n`, decisions `D-n`, actions `A-n`, questions `Q-n`, risks `RISK-n`, gaps `GAP-n`, systems `SYS-n` and integrations `INT-n`), a status.md snapshot, a prepend-only journal.md, per-session notes, stakeholders, and a workspace CLAUDE.md (source-of-truth order, absolute dates, supersede-never-delete, draft-never-send).
+- `engagement-check ledger <dir>`: IDs defined once and cited only where they exist and are current (readouts included); superseded entries name an existing successor; actions have owners and real dates; accepted decisions have an approver and a reversal condition; facts have a label and a source; answered questions say where; hypothesis statuses are valid; status.md is not older than the newest journal entry.
+- `/ainf-engagements:escalation` for red accounts and chronic problems: mission intent with three-tier done, identities and topology verified first, related incidents (`INC-n`), a sceptical read of third-party RCAs, an rca-plan with confirm and kill tests and decision gates, an RCA with a cause tree, remediation with containment apart from cure and capability tags, a triage-only runbook, monitoring signals, an exit scorecard, handover and closure.
+- `/ainf-engagements:readout`: client readouts drafted from the ledgers, every claim citing its ID, checked by `ledger`.
+- POC plan: a test table and a stop-and-ask list; POC results record E- evidence and update hypotheses and facts.
+- Reference doc `docs/engagements.md`, and `docs/mappings/` for SAFe, Shape Up and Team Topologies.
+- The session index shows an engagement workspace's last status update, and rca, remediation and exit files.
+
+### Changed
+- `/ainf-engagements:discovery` runs on the workspace: session notes keyed to question IDs with a carry-forward list, `?` and `⚠` markers, facts written once in facts.md, a hypothesis table with dated status, risks kept apart from gaps and decisions, and SOW entry criteria. `notes-template.md` is replaced by `document-template.md`; session notes use the workspace's template.
+- `/ainf-engagements:incident` covers acute outages and hands recurring or still-red problems to escalation. **Convention change:** incident hypotheses and evidence are numbered `H-1` and `E-1` (were `H1`, `E1`) so the ledger check reads them.
+- The session index trims a status line at ` · `.
+
 ## [0.5.0] - 2026-10-12
 
 Namespaced IDs and backlog stories.
@@ -91,7 +109,8 @@ The core chain.
 - Git hooks, the CI workflow, and explore/code/release permission profiles.
 - SessionStart artifact index.
 
-[Unreleased]: https://github.com/venkatviswa/ai-native-framework/compare/v0.5.0...HEAD
+[Unreleased]: https://github.com/venkatviswa/ai-native-framework/compare/v0.6.0...HEAD
+[0.6.0]: https://github.com/venkatviswa/ai-native-framework/compare/v0.5.0...v0.6.0
 [0.5.0]: https://github.com/venkatviswa/ai-native-framework/compare/v0.4.0...v0.5.0
 [0.4.0]: https://github.com/venkatviswa/ai-native-framework/compare/v0.3.0...v0.4.0
 [0.3.0]: https://github.com/venkatviswa/ai-native-framework/compare/v0.2.0...v0.3.0

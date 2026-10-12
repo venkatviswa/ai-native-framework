@@ -5,6 +5,8 @@ Background for people using the framework: what each artifact is for, how to fil
 ## Concepts
 
 - [IDs, drift and drift-check](concepts.md): the ID thread, the two kinds of drift, every drift-check mode and how to fix what it reports, guidance vs enforcement, proportionate rigour.
+- [Engagements](engagements.md): the engagement workspace, its ID'd ledgers, the ledger check, and how discovery, escalation and readouts use them.
+- [Mappings](mappings/README.md): the chain in SAFe, Shape Up and Team Topologies.
 
 ## Artifacts
 
@@ -30,4 +32,4 @@ docs/_templates/<artifact>.md            ->  docs/<feature>/<artifact>.md   (eac
 
 Init copies files and never overwrites one. Each skill uses your project's `docs/_templates/<artifact>.md` when it exists, and falls back to the plugin's copy otherwise. So you can change the house style once, in your repo, and every feature follows it. Keep the `ID prefix:`, `R#`, `AC# (R#)`, `- [ ] T# (R#, AC#)`, story and Action boundaries line formats, because drift-check parses them. drift-check and the session index skip folders under `docs/` whose names start with `_`.
 
-The engagement artifacts (discovery notes, POC, SOW, delivery, SIT/UAT, cutover, incident) have their templates next to their skills in [`plugins/ainf-engagements/skills/`](../plugins/ainf-engagements/skills/).
+The engagement artifacts (discovery, POC, SOW, delivery, SIT/UAT, cutover, incident, escalation, readout) have their templates next to their skills in [`plugins/ainf-engagements/skills/`](../plugins/ainf-engagements/skills/). The engagement workspace (ledgers, status, journal, notes) is in [`plugins/ainf-engagements/templates/workspace/`](../plugins/ainf-engagements/templates/workspace/); `/ainf-engagements:workspace` copies it into `docs/<engagement>/`.

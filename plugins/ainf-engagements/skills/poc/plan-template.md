@@ -16,6 +16,17 @@ Riskiest assumption tested: [quote from intent.md]
 ## Measurement
 - [How each pass / fail number is collected, and by whom]
 
+## Tests
+| Test | Proves | Pass looks like | Evidence goes to |
+|---|---|---|---|
+| [what is run] | [AC1 (R1)] | [the observable result, with the number] | [E- ID in poc-result.md] |
+
+## Stop and ask
+<!-- The builder (person or agent) stops and asks before any of these. -->
+- [Anything that needs real client data, a production credential or a licence we do not have]
+- [A result that contradicts facts.md: facts.md wins until a person supersedes the entry]
+- [Scope creeping beyond the claim]
+
 ## What we will NOT build
 - [Production-quality error handling, UI polish, integrations beyond the claim, ...]
 
