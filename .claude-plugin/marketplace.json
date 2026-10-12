@@ -3,20 +3,20 @@
   "owner": { "name": "Venkat Viswanathan" },
   "metadata": {
     "description": "The Architect's AI-Native SDLC as installable Claude Code plugins: intent, spec, plan, tasks, human gates, requirement IDs and drift checks, plus consulting engagements.",
-    "version": "0.3.0"
+    "version": "0.4.0"
   },
   "plugins": [
     {
       "name": "ainf",
       "source": "./plugins/ainf",
       "description": "Core artifact chain: intent.md, spec.md, plan.md, tasks.md, five gates, traceability IDs, drift-check and git hooks; change requests, drift review, triage, retro and reviewer subagents.",
-      "version": "0.3.0"
+      "version": "0.4.0"
     },
     {
       "name": "ainf-engagements",
       "source": "./plugins/ainf-engagements",
       "description": "Consulting engagements on the same chain: discovery to POC to SOW, phased delivery with sprints, SIT, UAT, traceability matrix and go-live, and read-only incident response. Requires ainf.",
-      "version": "0.3.0"
+      "version": "0.4.0"
     }
   ]
 }

@@ -11,8 +11,8 @@ Two plugins in one marketplace:
 
 | Plugin | For | Version |
 |---|---|---|
-| [`ainf`](plugins/ainf) | The core chain on any codebase you control: artifacts, five human gates, requirement-ID traceability, drift checks, change requests, reviews and retros. | 0.3.0 |
-| [`ainf-engagements`](plugins/ainf-engagements) | The same chain in consulting: discovery → POC → SOW, phased delivery with sprints, SIT, UAT and go-live, and read-only incident response. Requires `ainf`. | 0.3.0 |
+| [`ainf`](plugins/ainf) | The core chain on any codebase you control: artifacts, five human gates, requirement-ID traceability, drift checks, change requests, reviews and retros. | 0.4.0 |
+| [`ainf-engagements`](plugins/ainf-engagements) | The same chain in consulting: discovery → POC → SOW, phased delivery with sprints, SIT, UAT and go-live, and read-only incident response. Requires `ainf`. | 0.4.0 |
 
 ---
 
@@ -583,16 +583,17 @@ While the version is `0.x`, minor releases may still adjust conventions, and eac
 
 | Version | Date | Summary |
 |---|---|---|
+| **0.4.0** | 2026-10-12 | Reference docs in `docs/`: concepts (IDs, drift, drift-check) and a guide per artifact. Placeholder templates for intent, spec, plan, tasks and CR now live in `plugins/ainf/templates/docs/`; `/ainf:init` stamps them into `docs/_templates/` and the skills prefer the repo's copy. Constitution gains an Approvers table used by `/ainf:gate`; CLAUDE.md gains Project and Where things live. drift-check skips `_`-prefixed doc folders. Adds the MIT license. |
 | **0.3.0** | 2026-10-12 | New `ainf-engagements` plugin with 9 skills: discovery, poc, sow, phased, sprint, sit-uat, traceability, golive and incident. Adds the `sow-reviewer` agent, `engagement-check.mjs` (labels, sow, matrix), a read-only incident permission profile and Salesforce/cloud-native platform notes. Core: drift-check reads per-sprint `tasks-*.md` files and exports its helpers, and the session index shows sprint and engagement artifacts. |
 | **0.2.0** | 2026-10-12 | Change control and review. New skills: cr, drift-review, triage, retro and split. Adds 4 read-only reviewer subagents and `drift-check --impact`. |
 | **0.1.0** | 2026-10-12 | The core chain: init, intent, spec, plan, tasks, build and gate. Adds drift-check (dev, complete, `--base`, commit-msg), git hooks, the CI workflow, permission profiles and the SessionStart artifact index. |
 
 ## Roadmap
 
-- **0.4**
+- **0.5**
   - Namespaced IDs per feature (`REM-R1`), so two features can both define `AC1`.
   - A `drift-check --stories` mode that links story IDs to requirement IDs.
-- **0.5**
+- **0.6**
   - Governance pack: managed-settings examples, secret-scanning, and an adoption scorecard.
   - Enterprise mappings for SAFe, Shape Up and Team Topologies.
 - **Later**

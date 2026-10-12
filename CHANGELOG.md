@@ -4,6 +4,10 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ## [Unreleased]
 
+## [0.4.0] - 2026-10-12
+
+Reference docs and project-owned templates.
+
 ### Added
 - MIT license.
 - Reference docs in `docs/`: `concepts.md` (IDs, drift, drift-check, guidance vs enforcement) and one guide per artifact (constitution, CLAUDE.md, intent, spec, plan, tasks, change request), linked from the README.
@@ -65,7 +69,8 @@ The core chain.
 - Git hooks, the CI workflow, and explore/code/release permission profiles.
 - SessionStart artifact index.
 
-[Unreleased]: https://github.com/venkatviswa/ai-native-framework/compare/v0.3.0...HEAD
+[Unreleased]: https://github.com/venkatviswa/ai-native-framework/compare/v0.4.0...HEAD
+[0.4.0]: https://github.com/venkatviswa/ai-native-framework/compare/v0.3.0...v0.4.0
 [0.3.0]: https://github.com/venkatviswa/ai-native-framework/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/venkatviswa/ai-native-framework/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/venkatviswa/ai-native-framework/releases/tag/v0.1.0
