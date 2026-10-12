@@ -13,7 +13,7 @@ For each checklist item report **PASS**, **FAIL** or **UNSURE**, with evidence: 
 
 **Approval.** Never set `Status: APPROVED` yourself. If the verdict is pass and the user explicitly says they approve, write `Status: APPROVED vX (their name, today's date)`, and only then.
 
-**Proportionate rigour.** Not every change needs every gate. A copy fix may need only Gate 5; anything touching personal data, money, schema or production needs all five with a named approver. If the user asks to skip a gate, say what risk that accepts, then do as they decide.
+**Proportionate rigour.** Not every change needs every gate. If it is unclear which gates this change needs, run `/ainf:triage` first. If the user asks to skip a gate, say what risk that accepts, then do as they decide.
 
 ## Gate 1: intent.md
 - The outcome is measurable or at least observable, with a baseline.
@@ -30,6 +30,7 @@ For each checklist item report **PASS**, **FAIL** or **UNSURE**, with evidence: 
 - Requirements and criteria are numbered (R1, AC1 (R1)) so tasks and tests can point to them.
 
 ## Gate 3: plan.md
+Dispatch the `ainf:plan-reviewer` subagent first and fold its findings into the items below.
 - Every requirement and acceptance criterion maps to something in the plan (check the Traceability table).
 - The constitution check is honest, and exceptions are approved.
 - The data model can enforce the spec.
@@ -43,7 +44,7 @@ For each checklist item report **PASS**, **FAIL** or **UNSURE**, with evidence: 
 - Run `node scripts/drift-check.mjs --feature docs/<feature>` and include its output.
 
 ## Gate 5: code review against the spec
-Review the diff on two axes, against the repo's standards and against spec.md:
+Review the diff on two axes. Dispatch the `ainf:spec-reviewer` and `ainf:standards-reviewer` subagents **in parallel** on the same diff range, check the evidence behind each HIGH finding yourself, then report against this checklist:
 - Every acceptance criterion in scope has a test, and you read what the tests *assert*. Tests are evidence, not proof.
 - No changes outside the files the task and action boundaries allow.
 - Code matches the plan's contracts and data model, or the plan was updated first.

@@ -7,6 +7,7 @@
 //   node scripts/drift-check.mjs --feature docs/reminders
 //   node scripts/drift-check.mjs --run-tests     run config.testCommand first (pre-commit)
 //   node scripts/drift-check.mjs --commit-msg .git/COMMIT_EDITMSG
+//   node scripts/drift-check.mjs --impact R2[,AC7]   every line, task, test and commit that cites them
 //
 // It checks references, not meaning. A human still reviews whether a test proves its criterion.
 // Optional config in .ainf.json at the repo root; see DEFAULTS.
@@ -231,10 +232,59 @@ export function checkCommitMessage(message, stagedFiles, config = DEFAULTS) {
   return `commit touches ${config.codeDirs.join('/, ')}/ but the subject names no task and requirement.\n  Expected e.g. "T3 (R1): scan due tasks", got "${subject}"`;
 }
 
+// Everything that cites the given IDs: the change-request impact list. A requirement brings its criteria with it.
+export function impact({ root = process.cwd(), ids, feature = null }) {
+  const config = loadConfig(root);
+  const bad = ids.filter((id) => !/^(R\d+|AC\d+[a-z]?)$/.test(id));
+  if (bad.length) throw new Error(`not a requirement or criterion ID: ${bad.join(', ')}`);
+
+  const features = discoverFeatures(root, config, feature);
+  const expanded = new Set(ids);
+  for (const feat of features) {
+    for (const [ac, reqs] of parseSpec(read(root, `${feat}/spec.md`)).criteria) {
+      if (reqs.some((r) => ids.includes(r))) expanded.add(ac);
+    }
+  }
+  const cites = (text) => (text.match(ID_REF) || []).filter((id) => expanded.has(id));
+
+  const files = listFiles(root);
+  const scan = [
+    ...features.flatMap((f) => files.filter((x) => x.startsWith(`${f}/`) && x.endsWith('.md'))),
+    ...files.filter((f) => isTest(config, f) || isCode(config, f)),
+  ];
+  const hits = [];
+  for (const file of [...new Set(scan)]) {
+    read(root, file).split('\n').forEach((text, i) => {
+      if (cites(text).length) hits.push({ file, line: i + 1, text: text.trim() });
+    });
+  }
+  const tasks = features.flatMap((f) => parseTasks(read(root, `${f}/tasks.md`))
+    .filter((t) => [...t.refs].some((id) => expanded.has(id))).map((t) => t.id));
+  const commits = lines(git(['log', '--format=%h %s'], root)).filter((l) => cites(l).length);
+  return { expanded: [...expanded], hits, tasks, commits };
+}
+
 function main(argv) {
   const arg = (name) => { const i = argv.indexOf(name); return i >= 0 ? argv[i + 1] : null; };
   const root = git(['rev-parse', '--show-toplevel'], process.cwd())?.trim() || process.cwd();
   const config = loadConfig(root);
+
+  const impactIds = arg('--impact');
+  if (impactIds) {
+    const ids = impactIds.split(',').map((s) => s.trim()).filter(Boolean);
+    const r = impact({ root, ids, feature: arg('--feature') });
+    console.log(`impact of ${ids.join(', ')} (with criteria: ${r.expanded.join(', ')}): ${r.hits.length} line(s)`);
+    let last = null;
+    for (const h of r.hits) {
+      if (h.file !== last) console.log(`  ${h.file}`);
+      console.log(`    ${String(h.line).padStart(4)}  ${h.text}`);
+      last = h.file;
+    }
+    console.log(`  tasks:   ${r.tasks.join(', ') || 'none'}`);
+    console.log(`  commits: ${r.commits.length ? '' : 'none'}`);
+    for (const c of r.commits) console.log(`    ${c}`);
+    return 0;
+  }
 
   const msgFile = arg('--commit-msg');
   if (msgFile) {

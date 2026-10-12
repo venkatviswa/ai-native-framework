@@ -26,4 +26,4 @@ Review a plan against the spec, not against whether it sounds right. Every line 
 
 ## Review an existing plan
 
-Check each line against R*/AC* and the constitution. For each flaw: quote the line, name the requirement or rule it breaks, and propose the corrected line. Typical misses: retries that can duplicate, fixed UTC offsets instead of IANA zones, in-memory state lost on restart, personal data in logs, a new vendor, a unique key that omits the recipient.
+Dispatch the `ainf:plan-reviewer` subagent, then verify its findings yourself. It checks each line against R*/AC* and the constitution. For each flaw: quote the line, name the requirement or rule it breaks, and propose the corrected line. Typical misses: retries that can duplicate, fixed UTC offsets instead of IANA zones, in-memory state lost on restart, personal data in logs, a new vendor, a unique key that omits the recipient.

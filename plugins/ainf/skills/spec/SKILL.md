@@ -21,7 +21,7 @@ These line formats are what `drift-check` parses. Keep them exact.
 
 ## Attack (the clarify pass)
 
-Then review the spec as a skeptical tester, and **do not edit the file yet**. Output a numbered list of:
+Then dispatch the `ainf:skeptical-tester` subagent on the feature (or, if subagents are unavailable, review it yourself in that role), and **do not edit the file yet**. Output a numbered list of:
 - every vague word ("fast", "appropriate", "soon", "etc.") and undefined term;
 - every requirement without an acceptance criterion;
 - every case it does not cover: multiple owners or recipients, time zones and daylight saving, failed / lost / duplicated sends, two workers at once, changes after scheduling.

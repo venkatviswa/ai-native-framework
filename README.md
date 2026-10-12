@@ -21,7 +21,15 @@ Then, in the repository you want to work in:
 /ainf:tasks                     small, ID-linked, test-first tasks
 /ainf:build                     explore → plan → code → commit, one task at a time
 /ainf:gate <1-5> docs/<feature> run a gate checklist with evidence; only a person approves
+
+/ainf:triage                    how much ceremony does this change earn? tier, gates, approvers, evidence
+/ainf:cr                        change request: record CR-n, impact by ID, targeted diffs spec-first
+/ainf:drift-review docs/<f>     does the code do what the artifacts say? findings → ## Convergence tasks
+/ainf:split                     one spec across several developers and agents, with integration-test owners
+/ainf:retro                     the outcome missed: which artifact let it through?
 ```
+
+Reviewer subagents (read-only, raise but never block): `skeptical-tester` (spec, before Gate 2), `plan-reviewer` (before Gate 3), `spec-reviewer` and `standards-reviewer` (Gate 5, run in parallel).
 
 The artifact skills also trigger on their own when the conversation calls for them ("I want to add due-date reminders…").
 
@@ -31,7 +39,7 @@ The artifact skills also trigger on their own when the conversation calls for th
 |---|---|
 | `constitution.md` | Project principles. Every plan runs a constitution check against them. |
 | `CLAUDE.md` | Operating instructions the agent reads every session. |
-| `scripts/drift-check.mjs` | Dev mode: no stale IDs, every requirement has a task, changed code inside plan.md's action boundaries. `--complete`: every requirement and criterion has a test. `--base <ref>` for CI. |
+| `scripts/drift-check.mjs` | Dev mode: no stale IDs, every requirement has a task, changed code inside plan.md's action boundaries. `--complete`: every requirement and criterion has a test. `--base <ref>` for CI. `--impact R2`: every line, task, test and commit a change touches. |
 | `.githooks/pre-commit`, `commit-msg` | Run tests and drift-check; code commits must name `T# (R#)`. |
 | `.github/workflows/drift-check.yml` | Dev mode on pull requests, complete mode on `release/**`. |
 | `.claude/settings*.json` | Permission profiles per step: explore, code, release. |
@@ -58,14 +66,13 @@ It checks references, not meaning. A person still reviews whether a test proves 
 
 ```
 .claude-plugin/marketplace.json   the marketplace
-plugins/ainf/                     core plugin: skills, scripts, hook, templates
+plugins/ainf/                     core plugin: skills, agents, scripts, hook, templates
 test/                             tests for drift-check, init and the session index
 course-map.md                     which course slide each component comes from
 ```
 
 ## Roadmap
 
-- **v0.2** change control: `/ainf:cr` (impact analysis by ID, targeted diffs), `/ainf:drift-review` (converge-style findings that append tasks), `triage` (proportionate rigour), `retro` (which artifact let a miss through), reviewer subagents.
 - **v0.3** `ainf-engagements` plugin: discovery (labelled hypothesis intent, POC, SOW), phased delivery (sprint tasks, traceability matrix, SIT/UAT), incident (`incident.md`, read-only, a named human on production changes). Salesforce worked examples plus the cloud-native variant.
 
 ## Development
@@ -74,5 +81,7 @@ course-map.md                     which course slide each component comes from
 npm test
 npm run validate
 ```
+
+See [CHANGELOG.md](CHANGELOG.md).
 
 Known limitation: IDs are not namespaced per feature, so two features that both define `AC1` share it for test coverage. Use distinct prefixes per feature if that matters.

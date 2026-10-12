@@ -6,7 +6,7 @@ import { dirname, join } from 'node:path';
 import { test } from 'node:test';
 import { fileURLToPath } from 'node:url';
 
-import { check, checkCommitMessage, globToRegExp, parseSpec } from '../plugins/ainf/scripts/drift-check.mjs';
+import { check, checkCommitMessage, globToRegExp, impact, parseSpec } from '../plugins/ainf/scripts/drift-check.mjs';
 
 const pluginRoot = join(dirname(fileURLToPath(import.meta.url)), '..', 'plugins', 'ainf');
 
@@ -140,4 +140,18 @@ test('artifact index: summarises status, blocking questions and task progress', 
     encoding: 'utf8', env: { ...process.env, CLAUDE_PROJECT_DIR: root },
   });
   assert.match(out, /intent DRAFT \(1 BLOCKING\) · spec APPROVED v1\.0 · plan no status · tasks 1\/2/);
+});
+
+test('impact: a requirement brings its criteria, and lists lines, tasks, tests and commits', () => {
+  const root = base({ 'src/reminders/snooze.js': '// R2: snooze window\n' });
+  execFileSync('git', ['init', '-q'], { cwd: root });
+  execFileSync('git', ['-c', 'user.name=t', '-c', 'user.email=t@t', 'commit', '-q', '--allow-empty', '-m', 'T2 (R2): snooze'], { cwd: root });
+  const r = impact({ root, ids: ['R2'] });
+  assert.deepEqual(r.expanded.sort(), ['AC3', 'AC3b', 'R2']);
+  assert.deepEqual(r.tasks, ['T2']);
+  assert.equal(r.commits.length, 1);
+  const files = new Set(r.hits.map((h) => h.file));
+  for (const f of ['docs/reminders/spec.md', 'docs/reminders/tasks.md', 'test/reminders.test.js', 'src/reminders/snooze.js']) assert.ok(files.has(f), f);
+  assert.ok(!r.hits.some((h) => h.text.startsWith('AC1')), 'R1-only lines are not impacted');
+  assert.throws(() => impact({ root, ids: ['--output=x'] }), /not a requirement/);
 });
