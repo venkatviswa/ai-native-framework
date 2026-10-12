@@ -291,7 +291,7 @@ sequenceDiagram
     F-->>PO: show every diff before applying
     PO->>F: approve
     F->>B: new tasks T6b… test-first
-    B-->>CR: drift-check passes; self-check recorded in CR-1
+    B-->>CR: drift-check passes, self-check recorded in CR-1
 ```
 
 ### Three engagement shapes
