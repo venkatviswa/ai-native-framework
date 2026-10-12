@@ -37,7 +37,7 @@ Two plugins in one marketplace:
 - [Roadmap](#roadmap)
 - [Known limitations](#known-limitations)
 - [Development](#development)
-- [Credits](#credits)
+- [Credits and license](#credits-and-license)
 
 ---
 
@@ -612,7 +612,7 @@ claude --plugin-dir plugins/ainf --plugin-dir plugins/ainf-engagements
 
 When the course changes, update [course-map.md](course-map.md) and the components it points to.
 
-## Credits
+## Credits and license
 
 Built by **Venkat Viswanathan** from the course *The Architect's AI-Native SDLC*. It draws on:
 - Anthropic Academy's Claude Code material;
@@ -621,4 +621,4 @@ Built by **Venkat Viswanathan** from the course *The Architect's AI-Native SDLC*
 - the Google SRE Workbook on incident response;
 - Ham Vocke's *Practical Test Pyramid*.
 
-The repository doesn't have a license yet. Add one before making it public.
+Released under the [MIT License](LICENSE).
