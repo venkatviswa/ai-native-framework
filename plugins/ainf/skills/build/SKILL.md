@@ -12,6 +12,8 @@ For each task, one at a time:
 3. **Code.** Write the failing test first, named after its criterion (`AC1: two owners get one email each`). Run the tests and see it fail for the right reason. Write the minimal code to pass. Run all tests. Refactor while green.
 4. **Commit.** One task per commit: `T2 (R1): reminder rows per owner`. Tick the task in tasks.md in the same commit.
 
+If spec.md has an `ID prefix:` line (say `REM`), tests and commits outside the feature's docs use the full ID: `REM-AC1: two owners get one email each`, `REM-T2 (REM-R1): reminder rows per owner`. If the task belongs to a backlog story, the story key may follow: `REM-T2 (REM-R1): reminder rows per owner [PAY-123]`.
+
 After the requested tasks, run `node scripts/drift-check.mjs` and show the user the diff and its output.
 
 Rules that do not bend:

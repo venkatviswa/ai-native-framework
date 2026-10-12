@@ -24,7 +24,7 @@ const FILES = [
   ['templates/claude/settings.release.json', '.claude/settings.release.json'],
   // Placeholder templates for each feature artifact. Skills use the repo's copy when it exists,
   // so a team edits these once instead of the plugin. The leading _ keeps drift-check off them.
-  ...['intent', 'spec', 'plan', 'tasks', 'cr'].map((n) => [`templates/docs/${n}.md`, `docs/_templates/${n}.md`]),
+  ...['intent', 'spec', 'plan', 'tasks', 'stories', 'cr'].map((n) => [`templates/docs/${n}.md`, `docs/_templates/${n}.md`]),
 ];
 
 const created = [];

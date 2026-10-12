@@ -21,6 +21,7 @@
 ## Always
 - Write a failing test before code. Name tests after the criterion they prove: `AC3: snooze 4 h sends one follow-up`.
 - One task per commit. Subject names the task and requirement: `T3 (R1): scan due tasks`.
+- If the feature's spec.md has an `ID prefix:` line, tests and commits use the full ID: `REM-AC3: ...`, `REM-T3 (REM-R1): ...`. Inside the feature's own docs a short `R1` is fine.
 - Stay inside plan.md's Action boundaries. Ask before touching anything under "Ask first".
 - If code and spec disagree, stop and ask. Never silently pick one.
 - If behaviour changes, spec.md and plan.md change first, with targeted edits, not rewrites.

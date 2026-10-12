@@ -17,7 +17,7 @@ The tech lead approves the slicing. Boxes are ticked in the same commit as the w
 - [ ] T4 Reminder email copy (R1, AC2) P
 ```
 
-- `T#`, never reused.
+- `T#`, never reused. With an ID prefix in spec.md it is `REM-T3` in commit subjects; inside tasks.md the short form is fine.
 - At least one `R#`. drift-check fails a task with none, and fails a requirement no task cites.
 - `(approval)` when it touches anything under plan.md's *Ask first*.
 - `P` when it can run in parallel with its neighbours.

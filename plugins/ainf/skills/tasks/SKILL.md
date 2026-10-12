@@ -15,4 +15,4 @@ description: Cut an approved plan.md into docs/<feature>/tasks.md - small, order
 3. Check coverage: every acceptance criterion is covered by some task. List any that is not.
 4. **Stop for the user's review.** Then run Gate 4 (`/ainf:gate 4 docs/<feature>`).
 
-For a team, these rows sit under stories. A story is ready when a stranger could start it from the IDs alone: it names its R and AC IDs (not paraphrased), has one accountable owner, a verification method per criterion, and no blocking question.
+For a team, these rows sit under stories (`/ainf:stories` maps backlog keys to these IDs). A story is ready when a stranger could start it from the IDs alone: it names its R and AC IDs (not paraphrased), has one accountable owner, a verification method per criterion, and no blocking question.

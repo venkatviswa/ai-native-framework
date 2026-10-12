@@ -14,6 +14,7 @@ The product owner and tech lead approve it. Once it is approved, it changes only
 
 | Section | Fill with |
 |---|---|
+| ID prefix | Optional. A short code unique in the repo (`ID prefix: REM`), so this feature's IDs read `REM-R1`, `REM-AC1` in tests and commits. Set it as soon as the repo has a second feature. See [namespaced IDs](../concepts.md#namespaced-ids-two-features-one-repo). |
 | Definitions | Every term whose meaning changes behaviour: time and time zones, identity, units, what counts as one "occurrence". |
 | Requirements | `R1 ...` at the start of the line, one behaviour each, in an [EARS](../../plugins/ainf/skills/spec/references/ears.md) pattern: *When / While / If ... then / Where*. |
 | Acceptance criteria | `AC1 (R1) Given ... When ... Then ...`. At least one per requirement, **including failure cases**: rejection, timeout, retry, duplicates, concurrency, restart. |
@@ -36,4 +37,4 @@ The first draft always looks finished. `/ainf:spec` then runs the `skeptical-tes
 
 ## Line formats drift-check reads
 
-`R\d+` at the start of a line (optionally after `- ` or `**`) is a requirement. `AC\d+[a-z]? (R#, ...)` at the start of a line is a criterion and its mapping. Keep these shapes if you edit the template.
+`R\d+` at the start of a line (optionally after `- ` or `**`) is a requirement. `AC\d+[a-z]? (R#, ...)` at the start of a line is a criterion and its mapping. Either may carry the spec's own prefix (`REM-R1`); a short `R1` in this feature's docs means the same. `ID prefix: XXX` on a line of its own sets the prefix: 2 to 8 capitals or digits, starting with a capital. Keep these shapes if you edit the template.

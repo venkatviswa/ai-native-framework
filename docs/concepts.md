@@ -3,6 +3,8 @@
 The framework rests on three ideas. Every artifact gets a stable ID. Drift is what happens when the IDs stop lining up with each other or with the code. drift-check is the script that notices, in seconds, every time.
 
 - [IDs: one thread from intent to commit](#ids-one-thread-from-intent-to-commit)
+- [Namespaced IDs: two features, one repo](#namespaced-ids-two-features-one-repo)
+- [Stories: backlog keys on the thread](#stories-backlog-keys-on-the-thread)
 - [Drift: when the artifacts stop telling the truth](#drift-when-the-artifacts-stop-telling-the-truth)
 - [drift-check: what it checks and what it cannot](#drift-check-what-it-checks-and-what-it-cannot)
 - [Guidance vs enforcement](#guidance-vs-enforcement)
@@ -42,6 +44,46 @@ commit        T4 (R2): skip snoozed tasks
 
 drift-check reads plain text with a handful of regular expressions. `R1` at the start of the line is a requirement. `AC1 (R1)` is a criterion mapped to R1. `- [ ] T1 ... (R1, AC1)` is a task. In plan.md, `May edit:`, `Ask first:` and `Never:` with backticked globs are the action boundaries. Change the shape of these lines in your templates and the checks go quiet. Everything else in every artifact is free text.
 
+## Namespaced IDs: two features, one repo
+
+Every feature numbers from `R1` and `AC1`. With one feature that is fine. With two, a test named `AC1: …` could prove either one, and drift-check would count it for both.
+
+A prefix fixes that. One line in spec.md:
+
+```
+ID prefix: REM
+```
+
+Now the feature owns `REM-R1`, `REM-AC1` and `REM-T1`. Inside its own docs (spec, plan, tasks, stories) a short `R1` still means `REM-R1`, so the files stay readable. Everywhere else, the full ID is required:
+
+```
+test          test('REM-AC3: snooze 4 h sends one follow-up', ...)
+commit        REM-T4 (REM-R2): skip snoozed tasks
+other plan    Reuses the scheduler from REM-R1.          (a cross-feature citation)
+```
+
+Rules drift-check enforces:
+- prefixes are 2 to 8 capitals or digits, starting with a capital, and unique in the repo;
+- a spec may only define IDs with its own prefix;
+- once any feature has a prefix, a short `AC1` in a test or commit is stale unless an unprefixed feature defines `AC1`;
+- a full ID from another feature is a legitimate citation in plan, tasks or stories, as long as that feature defines it;
+- `requireIdPrefix: true` in `.ainf.json` makes a spec without a prefix a problem.
+
+Prefixes are opt-in. A repo with none behaves as before, and if two unprefixed features share an ID, drift-check prints a note naming them. **Pick the prefix before tests and commits cite the IDs.** Changing it later is a rename across every citation, which is exactly the kind of edit IDs exist to avoid.
+
+## Stories: backlog keys on the thread
+
+Teams plan in a tracker: Jira, Azure Boards, GitHub issues. The tracker owns a story's key, status, estimate and sprint. The repo owns what the story means. `docs/<feature>/stories.md` joins them, one line per story:
+
+```
+- PAY-123 Reminder per owner (R1, AC1)
+- PAY-124 Snooze (R2)
+```
+
+A story that cites only a requirement covers all of that requirement's criteria. Cite the ACs when a story delivers part of one. `drift-check --stories` prints a row per story: the requirements it covers, how many of its criteria have a test, the tasks that cite its IDs, and how many commits name its key. It fails when a story names no ID, a key appears twice, or a requirement belongs to no story. `/ainf:stories` writes the file and reads the report with you.
+
+The point is to make "is PAY-123 done?" a question the repo can answer with evidence, instead of a status someone dragged across a board.
+
 ## Drift: when the artifacts stop telling the truth
 
 Drift is any gap between what the artifacts say and what the system does. It comes in two kinds.
@@ -76,8 +118,9 @@ The rule that stops it: **fix the earliest artifact that is wrong.** If the code
 | `--commit-msg <file>` | commit-msg hook | a commit touching code whose subject has no `T# (R#)` |
 | `--base main` | CI on pull requests | same as dev mode, over every file changed since `main` |
 | `--complete` | before calling a feature done, at Gate 5 | all of the above, plus every criterion and requirement must have a test |
-| `--impact R2[,AC7]` | change requests | nothing. It prints every line, task, test and commit that cites the IDs. |
-| `--feature docs/<name>` | any mode | limits the run to one feature |
+| `--impact R2[,AC7]` | change requests | nothing. It prints every line, task, test and commit that cites the IDs. Use full IDs (`REM-R2`), or short ones with `--feature`. |
+| `--stories [--csv]` | sprint review, `/ainf:stories` | a story with no ID, a duplicate key, a requirement no story covers. Prints coverage per story. |
+| `--feature docs/<name>` | any mode | limits the run to one feature. Every spec is still read, so citations of other features' IDs resolve. |
 
 Folders under `docs/` whose names start with `_` (such as `docs/_templates/`) are not features and are skipped.
 
@@ -93,7 +136,10 @@ Folders under `docs/` whose names start with `_` (such as `docs/_templates/`) ar
 | `AC4 ... no test cites it` (`--complete`) | write the test, named after the criterion |
 | `outside plan.md's action boundaries` | revert, or update plan.md's boundaries with approval |
 | `needs human approval (plan.md: Ask first)` | get approval, then rerun with `AINF_APPROVED=<file>` |
-| commit-msg rejected | `T3 (R1): what changed` |
+| commit-msg rejected | `T3 (R1): what changed`, or `REM-T3 (REM-R1): …` with a prefix |
+| `R1 ... defined in docs/a, docs/b` (note) | add an `ID prefix:` line to each spec.md, then use full IDs in tests and commits |
+| `ID prefix X is declared by ...` | give one of the features a different prefix |
+| `no story in stories.md covers it` | add the requirement to a story, or create one in the tracker |
 
 ## Guidance vs enforcement
 

@@ -4,6 +4,28 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ## [Unreleased]
 
+## [0.5.0] - 2026-10-12
+
+Namespaced IDs and backlog stories.
+
+### Added
+- ID prefixes: a spec.md line `ID prefix: REM` makes the feature's IDs `REM-R1`, `REM-AC1` and `REM-T1`, so two features can both define `AC1`. Short IDs still work inside the feature's own docs; tests, code and commits use the full ID. Opt-in: a repo without prefixes behaves as before.
+- drift-check reports duplicate prefixes and IDs a spec defines under another feature's prefix, and notes unprefixed features that share IDs. `requireIdPrefix` in `.ainf.json` makes a missing prefix a problem.
+- Cross-feature citations: a full ID from another feature (`REM-R1` in the payments plan) is valid wherever that feature defines it.
+- `/ainf:stories` skill, `templates/docs/stories.md` (stamped by init) and `drift-check --stories [--csv]`: backlog keys (Jira, Azure Boards, GitHub) mapped to R and AC IDs, with requirements, criteria tested, tasks and commits per story. `storyPattern` in `.ainf.json` sets the key format.
+- `--impact` accepts full IDs (`REM-R2`), and short IDs with `--feature`.
+- The session index shows each feature's prefix: `docs/reminders [REM]`.
+- Reference docs: namespaced IDs and stories in `concepts.md`, and a stories.md guide.
+- drift-check exports `refs` and `isReq`.
+
+### Changed
+- `ainf-engagements`: `engagement-check sow` accepts prefixed IDs, and `matrix` resolves them the way drift-check does (older drift-check copies fall back to short IDs).
+- The commit-msg check accepts `REM-T3 (REM-R1): …`.
+
+### Fixed
+- `drift-check --feature` reported tests citing another feature's IDs as stale, because it read only the selected spec. It now reads every spec.
+- course-map pointed at the template paths from before 0.4.
+
 ## [0.4.0] - 2026-10-12
 
 Reference docs and project-owned templates.
@@ -69,7 +91,8 @@ The core chain.
 - Git hooks, the CI workflow, and explore/code/release permission profiles.
 - SessionStart artifact index.
 
-[Unreleased]: https://github.com/venkatviswa/ai-native-framework/compare/v0.4.0...HEAD
+[Unreleased]: https://github.com/venkatviswa/ai-native-framework/compare/v0.5.0...HEAD
+[0.5.0]: https://github.com/venkatviswa/ai-native-framework/compare/v0.4.0...v0.5.0
 [0.4.0]: https://github.com/venkatviswa/ai-native-framework/compare/v0.3.0...v0.4.0
 [0.3.0]: https://github.com/venkatviswa/ai-native-framework/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/venkatviswa/ai-native-framework/compare/v0.1.0...v0.2.0

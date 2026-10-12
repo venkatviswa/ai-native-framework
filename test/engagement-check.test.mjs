@@ -96,3 +96,22 @@ test('matrix: joins unit tests, SIT, UAT and inspection by requirement and flags
   const md = renderMatrix('docs/billing', r);
   assert.match(md, /\| R4 \| — \| — \| — \| — \| \*\*GAP\*\* \|/);
 });
+
+test('prefixed IDs: sow compares without the prefix; matrix resolves them like drift-check', async () => {
+  assert.deepEqual(checkSow('## Scope\n- Reminders (REM-R1)\n## Assumptions\n- a\n## Out of scope\n- b\n', 'ID prefix: REM\nREM-R1 When x\n').problems, []);
+  assert.ok(checkSow('## Scope\n- Reminders (REM-R7)\n', 'R1\n').problems.includes('line 2: cites REM-R7, not defined in the spec'));
+  const root = mkdtempSync(join(tmpdir(), 'ainf-eng-'));
+  const put = (p, body) => { mkdirSync(dirname(join(root, p)), { recursive: true }); writeFileSync(join(root, p), body); };
+  mkdirSync(join(root, 'scripts'));
+  copyFileSync(join(plugin('ainf'), 'scripts/drift-check.mjs'), join(root, 'scripts/drift-check.mjs'));
+  put('docs/billing/spec.md', 'ID prefix: BIL\nR1 When ...\nR2 When ...\nAC1 (R1) Given\n');
+  put('docs/other/spec.md', 'ID prefix: OTH\nR1 When ...\nAC1 (R1) Given\n');
+  put('docs/billing/uat.md', '- UAT-1 (R2) As a clerk...\n');
+  put('test/billing.test.js', "test('BIL-AC1: totals', () => {})\n");
+  put('test/other.test.js', "test('OTH-AC1: other', () => {})\n");
+  const r = await matrix({ root, feature: 'docs/billing' });
+  assert.deepEqual([...r.rows.keys()], ['BIL-R1', 'BIL-R2']);
+  assert.deepEqual([...r.rows.get('BIL-R1').unit], ['test/billing.test.js'], 'OTH-AC1 is not BIL-AC1');
+  assert.deepEqual([...r.rows.get('BIL-R2').uat], ['UAT-1']);
+  assert.deepEqual(r.problems, []);
+});

@@ -16,6 +16,7 @@ Background for people using the framework: what each artifact is for, how to fil
 | spec.md | [guide](artifacts/spec.md) | [template](../plugins/ainf/templates/docs/spec.md) | `docs/<feature>/` | 2 |
 | plan.md | [guide](artifacts/plan.md) | [template](../plugins/ainf/templates/docs/plan.md) | `docs/<feature>/` | 3 |
 | tasks.md | [guide](artifacts/tasks.md) | [template](../plugins/ainf/templates/docs/tasks.md) | `docs/<feature>/` | 4 |
+| stories.md | [guide](artifacts/stories.md) | [template](../plugins/ainf/templates/docs/stories.md) | `docs/<feature>/` | optional; checked by `--stories` |
 | CR-n.md | [guide](artifacts/change-request.md) | [template](../plugins/ainf/templates/docs/cr.md) | `docs/<feature>/changes/` | approval before edits |
 
 ## How the templates reach your project
@@ -27,6 +28,6 @@ plugins/ainf/templates/docs/*.md         ->  docs/_templates/*.md    (init; copi
 docs/_templates/<artifact>.md            ->  docs/<feature>/<artifact>.md   (each skill, placeholders filled)
 ```
 
-Init copies files and never overwrites one. Each skill uses your project's `docs/_templates/<artifact>.md` when it exists, and falls back to the plugin's copy otherwise. So you can change the house style once, in your repo, and every feature follows it. Keep the `R#`, `AC# (R#)`, `- [ ] T# (R#, AC#)` and Action boundaries line formats, because drift-check parses them. drift-check and the session index skip folders under `docs/` whose names start with `_`.
+Init copies files and never overwrites one. Each skill uses your project's `docs/_templates/<artifact>.md` when it exists, and falls back to the plugin's copy otherwise. So you can change the house style once, in your repo, and every feature follows it. Keep the `ID prefix:`, `R#`, `AC# (R#)`, `- [ ] T# (R#, AC#)`, story and Action boundaries line formats, because drift-check parses them. drift-check and the session index skip folders under `docs/` whose names start with `_`.
 
 The engagement artifacts (discovery notes, POC, SOW, delivery, SIT/UAT, cutover, incident) have their templates next to their skills in [`plugins/ainf-engagements/skills/`](../plugins/ainf-engagements/skills/).

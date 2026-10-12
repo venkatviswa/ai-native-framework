@@ -6,7 +6,7 @@ import { dirname, join } from 'node:path';
 import { test } from 'node:test';
 import { fileURLToPath } from 'node:url';
 
-import { check, checkCommitMessage, globToRegExp, impact, parseSpec } from '../plugins/ainf/scripts/drift-check.mjs';
+import { check, checkCommitMessage, globToRegExp, impact, parseSpec, parseStories, stories } from '../plugins/ainf/scripts/drift-check.mjs';
 
 const pluginRoot = join(dirname(fileURLToPath(import.meta.url)), '..', 'plugins', 'ainf');
 
@@ -170,7 +170,7 @@ test('phased delivery: per-sprint task files count as tasks, and stale IDs in th
 test('init stamps docs/_templates, never overwrites, and drift-check skips them', () => {
   const root = repo({ 'CLAUDE.md': '# ours\n' });
   execFileSync('node', [join(pluginRoot, 'scripts/init.mjs'), root], { stdio: 'ignore' });
-  for (const n of ['intent', 'spec', 'plan', 'tasks', 'cr']) {
+  for (const n of ['intent', 'spec', 'plan', 'tasks', 'stories', 'cr']) {
     assert.equal(readFileSync(join(root, `docs/_templates/${n}.md`), 'utf8'),
       readFileSync(join(pluginRoot, `templates/docs/${n}.md`), 'utf8'));
   }
@@ -188,4 +188,98 @@ test('templates keep the line formats drift-check parses', () => {
   const root = repo({ 'docs/f/spec.md': tpl('spec'), 'docs/f/plan.md': tpl('plan'), 'docs/f/tasks.md': tpl('tasks') });
   const { problems } = check({ root, changed: [] });
   assert.deepEqual(problems, []);
+});
+
+// Two features that both number from R1 and AC1, told apart by their ID prefixes.
+const prefixed = (extra = {}) => repo({
+  'docs/reminders/spec.md': SPEC.replace('Status:', 'ID prefix: REM\nStatus:'),
+  'docs/reminders/plan.md': PLAN,
+  'docs/reminders/tasks.md': TASKS,
+  'docs/payments/spec.md': 'ID prefix: PAY\nR1 When a card is charged, the system shall send one receipt.\nAC1 (R1) Given a retry When it succeeds Then one receipt\n',
+  'docs/payments/tasks.md': '- [ ] T1 Receipt (R1, AC1)\n',
+  'test/reminders.test.js': "test('REM-AC1: two owners', () => {})\ntest('REM-AC3: snooze', () => {})\ntest('REM-AC3b: Kolkata', () => {})\n",
+  'test/payments.test.js': "test('PAY-AC1: one receipt', () => {})\n",
+  ...extra,
+});
+
+test('ID prefixes: short IDs in a feature docs resolve to its prefix; tests use the full ID', () => {
+  const spec = parseSpec(SPEC.replace('Status:', 'ID prefix: REM\nStatus:'));
+  assert.equal(spec.prefix, 'REM');
+  assert.deepEqual([...spec.requirements], ['REM-R1', 'REM-R2']);
+  assert.deepEqual(spec.criteria.get('REM-AC3b'), ['REM-R2']);
+  assert.deepEqual(check({ root: prefixed(), complete: true, changed: [] }).problems, []);
+  const root = prefixed({ 'test/old.test.js': "test('AC1: which feature?', () => {})\n" });
+  assert.deepEqual(check({ root, changed: [] }).problems, ['tests cite AC1, not defined in any spec.md (stale ID)']);
+});
+
+test('ID prefixes: unprefixed features sharing IDs get a note; duplicate, foreign and missing prefixes are problems', () => {
+  const clash = repo({
+    'docs/a/spec.md': 'R1 When x, the system shall y.\n',
+    'docs/b/spec.md': 'R1 When p, the system shall q.\n',
+  });
+  assert.ok(check({ root: clash, changed: [] }).notes.some((n) => n.startsWith('R1 defined in docs/a, docs/b') && n.includes('ID prefix:')));
+  const root = prefixed({
+    'docs/refunds/spec.md': 'ID prefix: PAY\nR1 When refunded, the system shall notify.\nPAY-R2 x\nREM-R5 y\n',
+    'docs/refunds/tasks.md': '- [ ] T1 Notify (R1, R2)\n',
+    'docs/legacy/spec.md': 'R9 When z, the system shall w.\n',
+    'docs/legacy/tasks.md': '- [ ] T1 W (R9)\n',
+    '.ainf.json': JSON.stringify({ requireIdPrefix: true }),
+  });
+  const { problems } = check({ root, changed: [] });
+  assert.ok(problems.includes('ID prefix PAY is declared by docs/payments and docs/refunds: prefixes must be unique'), problems.join('\n'));
+  assert.ok(problems.includes('docs/refunds/spec.md defines REM-R5, but its ID prefix is PAY'));
+  assert.ok(problems.includes('docs/legacy/spec.md has no "ID prefix:" line (required by .ainf.json requireIdPrefix)'));
+});
+
+test('ID prefixes: qualified cross-feature citations resolve, and --feature still sees every spec', () => {
+  const root = prefixed({ 'docs/payments/plan.md': '# plan.md\nReuses the scheduler from REM-R1 (REM-AC1).\nSee also REM-R9.\n' });
+  assert.deepEqual(check({ root, changed: [] }).problems, ['docs/payments/plan.md cites REM-R9, not defined in spec.md (stale ID)']);
+  // Before the fix, PAY-AC1 in test/payments.test.js was reported stale when only reminders was checked.
+  assert.deepEqual(check({ root: prefixed(), feature: 'docs/reminders', changed: [] }).problems, []);
+});
+
+test('ID prefixes: commit subjects and impact take full IDs', () => {
+  const touches = ['src/reminders/scan.js'];
+  assert.equal(checkCommitMessage('REM-T3 (REM-R1): scan due tasks', touches), null);
+  assert.equal(checkCommitMessage('REM-T7b (REM-R3, REM-R4): fix [PAY-12]', touches), null);
+  assert.match(checkCommitMessage('REM-T3: scan due tasks', touches), /names no task and requirement/);
+  const root = prefixed({ 'src/reminders/snooze.js': '// REM-R2: snooze window\n' });
+  const r = impact({ root, ids: ['REM-R2'] });
+  assert.deepEqual(r.expanded.sort(), ['REM-AC3', 'REM-AC3b', 'REM-R2']);
+  assert.deepEqual(r.tasks, ['REM-T2']);
+  const files = new Set(r.hits.map((h) => h.file));
+  for (const f of ['docs/reminders/spec.md', 'docs/reminders/tasks.md', 'test/reminders.test.js', 'src/reminders/snooze.js']) assert.ok(files.has(f), f);
+  assert.ok(!files.has('docs/payments/spec.md') && !files.has('test/payments.test.js'));
+  assert.deepEqual(impact({ root, ids: ['R1'], feature: 'docs/payments' }).expanded.sort(), ['PAY-AC1', 'PAY-R1']);
+});
+
+test('stories: keys map to IDs, a bare requirement brings its criteria, gaps are problems', () => {
+  assert.deepEqual(parseStories('- PAY-123 Reminder per owner (R1, AC1)\n| AB#7 | Snooze | R2 |\n- [x] #42 Fix\n').map((s) => s.key), ['PAY-123', 'AB#7', '#42']);
+  const root = base({ 'docs/reminders/stories.md': '- PAY-1 Reminder per owner (R1)\n- PAY-2 Snooze in the owner zone (AC3b)\n' });
+  execFileSync('git', ['init', '-q'], { cwd: root });
+  execFileSync('git', ['-c', 'user.name=t', '-c', 'user.email=t@t', 'commit', '-q', '--allow-empty', '-m', 'T1 (R1): store [PAY-1]'], { cwd: root });
+  const r = stories({ root });
+  assert.deepEqual(r.problems, []);
+  assert.deepEqual(r.rows.map(({ key, requirements, criteria, tested, tasks, commits }) => ({ key, requirements, criteria, tested, tasks, commits })), [
+    { key: 'PAY-1', requirements: ['R1'], criteria: ['AC1'], tested: 1, tasks: ['T1'], commits: 1 },
+    { key: 'PAY-2', requirements: ['R2'], criteria: ['AC3b'], tested: 0, tasks: ['T2'], commits: 0 },
+  ]);
+  const bad = base({ 'docs/reminders/stories.md': '- PAY-1 Reminder (R1)\n- PAY-1 Again (R1)\n- PAY-3 Spike\n- PAY-4 Old (R9)\n' });
+  const { problems } = check({ root: bad, changed: [] });
+  for (const p of [
+    'docs/reminders/stories.md cites R9, not defined in spec.md (stale ID)',
+    'docs/reminders/stories.md lists PAY-1 twice',
+    'docs/reminders/stories.md PAY-3 names no requirement or criterion',
+    'R2 is in docs/reminders/spec.md but no story in stories.md covers it',
+  ]) assert.ok(problems.includes(p), p);
+});
+
+test('the stories template parses once its keys are filled', () => {
+  const tpl = (n) => readFileSync(join(pluginRoot, `templates/docs/${n}.md`), 'utf8');
+  const root = repo({
+    'docs/f/spec.md': tpl('spec'), 'docs/f/tasks.md': tpl('tasks'),
+    'docs/f/stories.md': tpl('stories').replace(/\[KEY-(\d)\]/g, 'PAY-$1'),
+  });
+  assert.deepEqual(check({ root, changed: [] }).problems, []);
+  assert.equal(stories({ root }).rows.length, 3);
 });

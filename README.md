@@ -11,8 +11,8 @@ Two plugins in one marketplace:
 
 | Plugin | For | Version |
 |---|---|---|
-| [`ainf`](plugins/ainf) | The core chain on any codebase you control: artifacts, five human gates, requirement-ID traceability, drift checks, change requests, reviews and retros. | 0.4.0 |
-| [`ainf-engagements`](plugins/ainf-engagements) | The same chain in consulting: discovery → POC → SOW, phased delivery with sprints, SIT, UAT and go-live, and read-only incident response. Requires `ainf`. | 0.4.0 |
+| [`ainf`](plugins/ainf) | The core chain on any codebase you control: artifacts, five human gates, requirement-ID traceability, drift checks, change requests, reviews and retros. | 0.5.0 |
+| [`ainf-engagements`](plugins/ainf-engagements) | The same chain in consulting: discovery → POC → SOW, phased delivery with sprints, SIT, UAT and go-live, and read-only incident response. Requires `ainf`. | 0.5.0 |
 
 ---
 
@@ -356,6 +356,7 @@ Invoke a skill as `/ainf:<name>`. Every skill except `init` also triggers automa
 | `/ainf:spec` | Writes numbered EARS requirements and Given/When/Then criteria, including failure cases, then runs the attack pass with `skeptical-tester`. | `docs/<f>/spec.md` | Gate 2 |
 | `/ainf:plan` | Constitution check, data model, contracts, decisions with rejected options, risks, action boundaries, release and rollback, and a traceability table. Review mode dispatches `plan-reviewer`. | `docs/<f>/plan.md` | Gate 3 |
 | `/ainf:tasks` | Cuts the plan into small, ordered, test-first tasks citing R/AC, with `(approval)` and `P` markers, and checks coverage. | `docs/<f>/tasks.md` | Gate 4 |
+| `/ainf:stories` | Maps backlog stories (Jira, Azure Boards, GitHub issues) to R and AC IDs, one line per story, then reports each story's requirements, criteria tested, tasks and commits. | `docs/<f>/stories.md` | `drift-check --stories` |
 | `/ainf:build` | Explore → plan → code → commit, one task at a time. Failing test first, named after its criterion; one commit per task. | code, tests, commits | drift-check |
 | `/ainf:gate <1-5> <dir>` | Runs a gate checklist with PASS/FAIL/UNSURE and evidence. Applies the provenance rule. Never approves on its own. | Status line, only on your explicit approval | the gate itself |
 
@@ -433,7 +434,8 @@ Checks references, not meaning. A person still reviews whether a test proves its
 | `… --base origin/main` | CI on pull requests | dev mode on files changed since the base |
 | `… --complete` | CI on `release/**`; before "done" | every requirement and criterion has a test |
 | `… --feature docs/<f>` | anywhere | limits the check to one feature |
-| `… --impact R2[,AC7]` | `/ainf:cr` | every line, task, test, code comment and commit citing those IDs; a requirement brings its criteria |
+| `… --impact R2[,AC7]` | `/ainf:cr` | every line, task, test, code comment and commit citing those IDs; a requirement brings its criteria. Takes full IDs (`REM-R2`), or short ones with `--feature`. |
+| `… --stories [--csv]` | `/ainf:stories`, sprint review | one row per backlog story in `stories.md`: requirements, criteria tested, tasks, commits naming the key. Fails on a story with no ID, a duplicate key or a requirement no story covers. |
 
 `AINF_APPROVED=src/store.js git commit …` records a person's approval for a file under `Ask first:`.
 
@@ -451,7 +453,7 @@ Checks references, not meaning. A person still reviews whether a test proves its
 
 ```
 AI-native SDLC artifacts in this repo (files are the source of truth; read them before editing):
-- docs/reminders: intent APPROVED v1.0 · spec APPROVED v1.1 · plan APPROVED v1.0 · tasks 6/9
+- docs/reminders [REM]: intent APPROVED v1.0 · spec APPROVED v1.1 · plan APPROVED v1.0 · tasks 6/9
 - docs/northfield: intent DRAFT (hypothesis) (2 BLOCKING) · poc-spec DRAFT · sow DRAFT
 - docs/incident-2026-10-09-case-locks: incident OPEN
 ```
@@ -472,7 +474,7 @@ AI-native SDLC artifacts in this repo (files are the source of truth; read them 
 | `.claude/settings.json` | **Code** profile. It may edit `src/**` and `test/**`, run tests, and use git add and commit. It asks before touching plan, tasks, constitution or migrations. It can never push, use `--no-verify`, edit the hooks or drift-check, or read `.env`. |
 | `.claude/settings.explore.json` | **Explore** profile: read and run tests only. |
 | `.claude/settings.release.json` | **Release** profile: no edits; deploys ask every time. |
-| `docs/_templates/` | intent, spec, plan, tasks and CR templates with `[placeholders]`. The skills use these over the plugin's copies, so edit them to set your house style (keep the ID line formats). drift-check skips `_`-prefixed folders. |
+| `docs/_templates/` | intent, spec, plan, tasks, stories and CR templates with `[placeholders]`. The skills use these over the plugin's copies, so edit them to set your house style (keep the ID line formats). drift-check skips `_`-prefixed folders. |
 
 Init copies these files as they are and never overwrites one, then fills the project-specific placeholders it can read from the repo and asks you about the rest. Start Claude Code with a specific profile by running `claude --settings .claude/settings.explore.json`. The incident skill adds `.claude/settings.incident.json` when you need it.
 
@@ -481,7 +483,8 @@ Init copies these files as they are and never overwrites one, then fills the pro
 ## Conventions
 
 ```
-spec.md        R1 When …, the system shall …                      (EARS)
+spec.md        ID prefix: REM                                      (optional: IDs become REM-R1, REM-AC1, REM-T1)
+               R1 When …, the system shall …                      (EARS)
                AC1 (R1) Given … When … Then …
                AC3b (R2) …                                         (suffix = added by a CR)
 plan.md        ## Action boundaries
@@ -490,8 +493,9 @@ plan.md        ## Action boundaries
                - Never: production data
 tasks.md       - [ ] T3 scan due tasks (R1, AC1)                    (P = parallel, (approval) = ask first)
 tasks-sprint-3.md  same format, one file per sprint; IDs continue across sprints
-tests          test('AC1: two owners get one email each', …)
-commits        T3 (R1): scan due tasks
+stories.md     - PAY-123 Reminder per owner (R1, AC1)              (backlog key first, then the IDs it delivers)
+tests          test('AC1: two owners get one email each', …)     (with a prefix: 'REM-AC1: …')
+commits        T3 (R1): scan due tasks                            (with a prefix: REM-T3 (REM-R1): …)
 changes/       CR-1.md
 sit.md         - SIT-1 (R2, AC4) setup → action → expected
 uat.md         - UAT-1 (R1, AC1) As a clerk, I …
@@ -509,9 +513,13 @@ Discovery      - About 1,800 cases a month. [fact · Support head, call 1]
   "featuresDir": "docs",
   "codeDirs": ["src"],
   "testPatterns": ["test/**", "tests/**", "**/__tests__/**", "**/*.test.*", "**/*.spec.*", "**/*_test.*", "**/*Test.cls", "**/*Tests.cls"],
-  "testCommand": "npm test"
+  "testCommand": "npm test",
+  "requireIdPrefix": false,
+  "storyPattern": "[A-Z][A-Z0-9]+-\\d+|AB#\\d+|#\\d+"
 }
 ```
+
+`requireIdPrefix` makes a spec.md without an `ID prefix:` line a problem; turn it on once a repo has more than one feature. `storyPattern` is the regular expression for backlog keys in `stories.md`; the default matches Jira (`PAY-123`), Azure Boards (`AB#123`) and GitHub (`#123`).
 
 For Salesforce DX projects:
 
@@ -531,12 +539,12 @@ Action boundaries apply to code and test files. Config, CI and hook files are gu
 .claude-plugin/marketplace.json      the marketplace (two plugins)
 plugins/ainf/                        core plugin
   .claude-plugin/plugin.json
-  skills/<name>/SKILL.md             12 skills (spec also has references/ears.md)
+  skills/<name>/SKILL.md             13 skills (spec also has references/ears.md)
   agents/*.md                        4 read-only reviewers
   scripts/                           drift-check.mjs · init.mjs · artifact-index.mjs
   hooks/hooks.json                   SessionStart → artifact index
   templates/                         constitution, CLAUDE.md, githooks, CI, permission profiles
-  templates/docs/                    intent, spec, plan, tasks, cr placeholder templates
+  templates/docs/                    intent, spec, plan, tasks, stories, cr placeholder templates
 plugins/ainf-engagements/            engagements plugin
   skills/<name>/SKILL.md             9 skills with templates
   agents/sow-reviewer.md
@@ -583,6 +591,7 @@ While the version is `0.x`, minor releases may still adjust conventions, and eac
 
 | Version | Date | Summary |
 |---|---|---|
+| **0.5.0** | 2026-10-12 | Namespaced IDs: a spec.md with `ID prefix: REM` owns `REM-R1`, `REM-AC1`, `REM-T1`, so two features can both have an `AC1`. Short IDs still work inside a feature's own docs, and repos without prefixes behave as before, with a note when unprefixed features share IDs. New `/ainf:stories` skill and `drift-check --stories [--csv]`: backlog keys mapped to requirement IDs, with coverage per story. drift-check reads every spec even with `--feature`, so cross-feature citations resolve. engagement-check understands prefixes. |
 | **0.4.0** | 2026-10-12 | Reference docs in `docs/`: concepts (IDs, drift, drift-check) and a guide per artifact. Placeholder templates for intent, spec, plan, tasks and CR now live in `plugins/ainf/templates/docs/`; `/ainf:init` stamps them into `docs/_templates/` and the skills prefer the repo's copy. Constitution gains an Approvers table used by `/ainf:gate`; CLAUDE.md gains Project and Where things live. drift-check skips `_`-prefixed doc folders. Adds the MIT license. |
 | **0.3.0** | 2026-10-12 | New `ainf-engagements` plugin with 9 skills: discovery, poc, sow, phased, sprint, sit-uat, traceability, golive and incident. Adds the `sow-reviewer` agent, `engagement-check.mjs` (labels, sow, matrix), a read-only incident permission profile and Salesforce/cloud-native platform notes. Core: drift-check reads per-sprint `tasks-*.md` files and exports its helpers, and the session index shows sprint and engagement artifacts. |
 | **0.2.0** | 2026-10-12 | Change control and review. New skills: cr, drift-review, triage, retro and split. Adds 4 read-only reviewer subagents and `drift-check --impact`. |
@@ -590,9 +599,6 @@ While the version is `0.x`, minor releases may still adjust conventions, and eac
 
 ## Roadmap
 
-- **0.5**
-  - Namespaced IDs per feature (`REM-R1`), so two features can both define `AC1`.
-  - A `drift-check --stories` mode that links story IDs to requirement IDs.
 - **0.6**
   - Governance pack: managed-settings examples, secret-scanning, and an adoption scorecard.
   - Enterprise mappings for SAFe, Shape Up and Team Topologies.
@@ -602,7 +608,7 @@ While the version is `0.x`, minor releases may still adjust conventions, and eac
 
 ## Known limitations
 
-- IDs aren't namespaced per feature. If two features both define `AC1`, they share it for test coverage. Use distinct numbering per feature if that matters.
+- ID prefixes are opt-in. Without them, two features that both define `AC1` share it for test coverage; drift-check notes the clash. Add `ID prefix:` lines before tests and commits cite the IDs, because renaming later means editing every citation.
 - `drift-check` checks references, not meaning. A test named `AC1` that asserts nothing still counts. That's why Gate 5 reads the assertions.
 - The pre-commit boundary check sees staged paths, not intent. A person can still bypass hooks with `--no-verify`. The code profile denies that flag to the agent, and CI re-runs the check.
 - `engagement-check matrix` needs `scripts/drift-check.mjs` from ainf 0.3 or later in the target repo.

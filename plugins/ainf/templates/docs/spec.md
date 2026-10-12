@@ -2,6 +2,7 @@
 
 Status: DRAFT | APPROVED vX (who, date)
 Derived from: intent.md vX
+ID prefix: [2-8 capitals, e.g. REM, so IDs read REM-R1; delete this line in a repo with one feature]
 
 ## Definitions
 <!-- Terms whose meaning changes behaviour: time and time zones, identity, units. -->

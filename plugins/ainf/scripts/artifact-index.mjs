@@ -34,7 +34,9 @@ for (const name of readdirSync(dir).sort()) {
     const all = (text.match(/^\s*[-*]\s+\[[ xX]\]/gm) || []).length;
     parts.push(`tasks ${done}/${all}${taskFiles.length > 1 ? ` in ${taskFiles.length} files` : ''}`);
   }
-  rows.push(`- ${featuresDir}/${name}: ${parts.join(' · ')}`);
+  const prefix = files.includes('spec.md')
+    ? (readFileSync(join(dir, name, 'spec.md'), 'utf8').match(/^ID prefix:\s*([A-Z][A-Z0-9]{1,7})\s*$/m) || [])[1] : null;
+  rows.push(`- ${featuresDir}/${name}${prefix ? ` [${prefix}]` : ''}: ${parts.join(' · ')}`);
 }
 if (!rows.length) process.exit(0);
 

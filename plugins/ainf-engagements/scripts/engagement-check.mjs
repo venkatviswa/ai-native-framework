@@ -20,10 +20,13 @@ import { pathToFileURL } from 'node:url';
 const LABEL = /\[(fact|inference|recommendation|open question)\s*[·:\-–—]\s*[^\]\s][^\]]*\]/i;
 const BULLET = /^\s*(?:[-*+]|\d+[.)])\s+(?!\[[ xX]\])\S/;
 const CONSTRAINT_KIND = /\b(Known|Assumed|Unknown)\b/;
-const REQ = /\bR\d+\b/g;
+// IDs may carry a feature prefix (REM-R1, ainf 0.5); the SOW check compares them without it.
+const PFX = '(?:[A-Z][A-Z0-9]{1,7}-)?';
+const REQ = new RegExp(`\\b${PFX}R\\d+\\b`, 'g');
+const bare = (id) => id.replace(/^[A-Z][A-Z0-9]{1,7}-/, '');
 const ESTIMATE = /\b\d+(?:\.\d+)?\s*(?:d|days?|h|hrs?|hours?|w|wks?|weeks?|sprints?|pd|person[- ]days?|FTE)\b|[$€£₹]\s*\d/i;
 const CASE_DEF = /^\s*(?:[-*]\s+|\|\s*)?(?:\*\*)?((?:SIT|UAT|INS)-\d+[a-z]?)\b/;
-const ID_REF = /\b(AC\d+[a-z]?|R\d+)\b/g;
+const ID_REF = new RegExp(`\\b${PFX}(?:AC\\d+[a-z]?|R\\d+)\\b`, 'g');
 
 // Walks markdown, skipping fenced code and HTML comments, tracking the current heading.
 function* mdLines(text) {
@@ -61,7 +64,7 @@ export function checkLabels(text) {
 export function definedRequirements(specText) {
   const ids = new Set();
   for (const line of specText.split('\n')) {
-    const m = line.match(/^\s*(?:[-*]\s+|\|\s*)?(?:\*\*)?(R\d+)\b/);
+    const m = line.match(new RegExp(`^\\s*(?:[-*]\\s+|\\|\\s*)?(?:\\*\\*)?${PFX}(R\\d+)\\b`));
     if (m) ids.add(m[1]);
   }
   return ids;
@@ -80,7 +83,7 @@ export function checkSow(sowText, specText = null) {
     const reqs = line.match(REQ) || [];
     if (traced && !/^\s*\|\s*(item|scope|criterion|id)\b/i.test(line)) {
       if (!reqs.length) problems.push(`line ${n}: ${heading} item cites no requirement: "${short}"`);
-      const unknown = defined ? reqs.filter((r) => !defined.has(r)) : [];
+      const unknown = defined ? reqs.filter((r) => !defined.has(bare(r))) : [];
       if (unknown.length) problems.push(`line ${n}: cites ${unknown.join(', ')}, not defined in the spec`);
     }
     if (/to confirm/i.test(line) && ESTIMATE.test(line)) {
@@ -94,12 +97,14 @@ export function checkSow(sowText, specText = null) {
   return { problems };
 }
 
+const localIds = (text) => text.match(ID_REF) || [];
+
 // Parses SIT-n / UAT-n / INS-n case definitions with the IDs each cites.
-export function parseCases(text) {
+export function parseCases(text, ids = localIds) {
   const cases = [];
   for (const { line } of mdLines(text)) {
     const m = line.match(CASE_DEF);
-    if (m) cases.push({ id: m[1], refs: [...new Set(line.slice(m.index + m[0].length).match(ID_REF) || [])] });
+    if (m) cases.push({ id: m[1], refs: [...new Set(ids(line.slice(m.index + m[0].length)))] });
   }
   return cases;
 }
@@ -109,22 +114,30 @@ const KIND = { SIT: 'sit', UAT: 'uat', INS: 'inspection' };
 export async function matrix({ root = process.cwd(), feature }) {
   const dc = join(root, 'scripts', 'drift-check.mjs');
   if (!existsSync(dc)) throw new Error('scripts/drift-check.mjs not found: run /ainf:init first');
-  const { parseSpec, listFiles, loadConfig, isTest } = await import(pathToFileURL(dc).href);
+  const { parseSpec, listFiles, loadConfig, isTest, refs, isReq } = await import(pathToFileURL(dc).href);
   if (!listFiles || !isTest) throw new Error('scripts/drift-check.mjs is older than ainf 0.3: copy the current one from the ainf plugin');
 
   const config = loadConfig(root);
   const specPath = join(root, feature, 'spec.md');
   if (!existsSync(specPath)) throw new Error(`${feature}/spec.md not found`);
-  const { requirements, criteria } = parseSpec(readFileSync(specPath, 'utf8'));
+  const { prefix = '', requirements, criteria } = parseSpec(readFileSync(specPath, 'utf8'));
+  // ainf 0.5+ resolves prefixed IDs the way drift-check does; older copies fall back to short IDs.
+  const featuresDir = join(root, config.featuresDir);
+  const known = new Set(refs && existsSync(featuresDir)
+    ? readdirSync(featuresDir).map((n) => join(featuresDir, n, 'spec.md')).filter(existsSync)
+      .map((s) => parseSpec(readFileSync(s, 'utf8')).prefix).filter(Boolean)
+    : []);
+  const idsIn = (ns) => (refs ? (text) => refs(text, ns, known) : localIds);
+  const req = isReq || ((id) => id.startsWith('R'));
   const defined = new Set([...requirements, ...criteria.keys()]);
-  const toReqs = (refs) => new Set(refs.flatMap((id) => (id.startsWith('R') ? [id] : criteria.get(id) || [])));
+  const toReqs = (ids) => new Set(ids.flatMap((id) => (req(id) ? [id] : criteria.get(id) || [])));
 
   const rows = new Map([...requirements].map((r) => [r, { unit: new Set(), sit: new Set(), uat: new Set(), inspection: new Set() }]));
   const problems = [];
 
   const caseFiles = readdirSync(join(root, feature)).filter((n) => /^(sit|uat|inspection)[\w.-]*\.md$/i.test(n)).sort();
   for (const name of caseFiles) {
-    for (const c of parseCases(readFileSync(join(root, feature, name), 'utf8'))) {
+    for (const c of parseCases(readFileSync(join(root, feature, name), 'utf8'), idsIn(prefix))) {
       const unknown = c.refs.filter((id) => !defined.has(id));
       if (!c.refs.length) problems.push(`${name} ${c.id} cites no requirement`);
       if (unknown.length) problems.push(`${name} ${c.id} cites ${unknown.join(', ')}, not in spec.md`);
@@ -133,9 +146,9 @@ export async function matrix({ root = process.cwd(), feature }) {
   }
 
   for (const f of listFiles(root).filter((x) => isTest(config, x))) {
-    const refs = [...new Set(readFileSync(join(root, f), 'utf8').match(ID_REF) || [])];
-    if (!refs.length) { problems.push(`${f} cites no requirement or criterion`); continue; }
-    for (const r of toReqs(refs.filter((id) => defined.has(id)))) rows.get(r)?.unit.add(f);
+    const cited = [...new Set(idsIn('')(readFileSync(join(root, f), 'utf8')))];
+    if (!cited.length) { problems.push(`${f} cites no requirement or criterion`); continue; }
+    for (const r of toReqs(cited.filter((id) => defined.has(id)))) rows.get(r)?.unit.add(f);
   }
 
   for (const [r, v] of rows) {

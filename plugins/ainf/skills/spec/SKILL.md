@@ -15,6 +15,7 @@ Read `docs/<feature>/intent.md` (stop and say so if it has an unanswered BLOCKIN
 - **Requirements** numbered `R1`, `R2`... at the start of the line, each in an EARS pattern (see `references/ears.md`). One behaviour per requirement.
 - **Acceptance criteria** as `ACn (Rn) Given ... When ... Then ...` at the start of the line. At least one per requirement, including failure cases (rejections, timeouts, retries, concurrency, restarts). Suffixes such as `AC3b` are fine for added cases.
 - **Open questions**, `BLOCKING` or with an owner and a date.
+- **ID prefix.** If the repo has, or will have, more than one feature, set `ID prefix:` to a short code unique in the repo (`REM`). IDs then read `REM-R1`, `REM-AC1` everywhere outside this feature's docs, so two features can both have an `AC1`. If no other spec has one and the repo has a single feature, delete the line. Never change a prefix once tests or commits cite it.
 - Do not choose technology. That is plan.md.
 
 These line formats are what `drift-check` parses. Keep them exact.
