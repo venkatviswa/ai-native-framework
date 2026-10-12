@@ -1,0 +1,7 @@
+{
+  "name": "ainf",
+  "version": "0.1.0",
+  "description": "AI-native SDLC core: humans own intent and judgment, agents do the typing, the files keep the two honest. Artifact skills, gate checklists, requirement-ID traceability and drift checks.",
+  "author": { "name": "Venkat Viswanathan" },
+  "keywords": ["spec-driven", "sdlc", "traceability", "gates", "architecture"]
+}

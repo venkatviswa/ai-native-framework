@@ -1,0 +1,3 @@
+#!/bin/sh
+# Code changes must name their task and requirement, e.g. "T3 (R1): scan due tasks".
+exec node scripts/drift-check.mjs --commit-msg "$1"

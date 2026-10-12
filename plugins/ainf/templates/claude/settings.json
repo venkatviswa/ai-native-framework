@@ -1,0 +1,31 @@
+{
+  "$comment": "Code profile: the step where the agent writes src/ and test/. Adjust globs and commands to your stack.",
+  "permissions": {
+    "allow": [
+      "Edit(src/**)",
+      "Edit(test/**)",
+      "Bash(npm test:*)",
+      "Bash(node scripts/drift-check.mjs:*)",
+      "Bash(git status:*)",
+      "Bash(git diff:*)",
+      "Bash(git log:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)"
+    ],
+    "ask": [
+      "Edit(docs/**/plan.md)",
+      "Edit(docs/**/tasks.md)",
+      "Edit(constitution.md)",
+      "Edit(migrations/**)",
+      "Bash(npm run migrate:*)"
+    ],
+    "deny": [
+      "Bash(git push:*)",
+      "Bash(git commit --no-verify:*)",
+      "Edit(.githooks/**)",
+      "Edit(scripts/drift-check.mjs)",
+      "Read(./.env)",
+      "Read(./.env.*)"
+    ]
+  }
+}

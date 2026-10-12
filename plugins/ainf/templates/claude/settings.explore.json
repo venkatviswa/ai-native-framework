@@ -1,0 +1,7 @@
+{
+  "$comment": "Explore profile: read and run tests only. Start with: claude --settings .claude/settings.explore.json (or use plan mode).",
+  "permissions": {
+    "allow": ["Bash(npm test:*)", "Bash(node scripts/drift-check.mjs:*)", "Bash(git status:*)", "Bash(git diff:*)", "Bash(git log:*)"],
+    "deny": ["Edit", "Write", "Bash(git push:*)", "Bash(git commit:*)", "Read(./.env)", "Read(./.env.*)"]
+  }
+}

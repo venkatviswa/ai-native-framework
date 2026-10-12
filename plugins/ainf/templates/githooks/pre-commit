@@ -1,0 +1,3 @@
+#!/bin/sh
+# Runs the tests and drift-check (dev mode) on what is staged.
+exec node scripts/drift-check.mjs --run-tests

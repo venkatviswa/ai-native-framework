@@ -1,0 +1,23 @@
+name: drift-check
+on:
+  pull_request:
+  push:
+    branches: ['release/**']
+jobs:
+  drift:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: drift-check (dev, files changed since base)
+        if: github.event_name == 'pull_request'
+        run: node scripts/drift-check.mjs --base "origin/${GITHUB_BASE_REF}"
+      - name: drift-check (complete, release branch)
+        if: github.event_name == 'push'
+        run: node scripts/drift-check.mjs --complete

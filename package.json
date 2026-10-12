@@ -1,0 +1,10 @@
+{
+  "name": "ai-native-framework",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node --test test/*.test.mjs",
+    "validate": "claude plugin validate . && claude plugin validate plugins/ainf"
+  },
+  "engines": { "node": ">=20" }
+}

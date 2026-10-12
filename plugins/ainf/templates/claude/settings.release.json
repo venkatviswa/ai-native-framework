@@ -1,0 +1,8 @@
+{
+  "$comment": "Release profile: no edits; deploy needs a person each time. Start with: claude --settings .claude/settings.release.json",
+  "permissions": {
+    "allow": ["Bash(npm test:*)", "Bash(node scripts/drift-check.mjs:*)", "Bash(git status:*)", "Bash(git log:*)"],
+    "ask": ["Bash(npm run deploy:*)"],
+    "deny": ["Edit", "Write", "Bash(git push --force:*)", "Read(./.env)", "Read(./.env.*)"]
+  }
+}

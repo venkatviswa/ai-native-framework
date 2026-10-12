@@ -1,0 +1,15 @@
+{
+  "name": "ai-native-framework",
+  "owner": { "name": "Venkat Viswanathan" },
+  "metadata": {
+    "description": "The Architect's AI-Native SDLC as installable Claude Code plugins: intent, spec, plan, tasks, human gates, requirement IDs and drift checks."
+  },
+  "plugins": [
+    {
+      "name": "ainf",
+      "source": "./plugins/ainf",
+      "description": "Core artifact chain: intent.md, spec.md, plan.md, tasks.md, five gates, traceability IDs, drift-check and git hooks.",
+      "version": "0.1.0"
+    }
+  ]
+}
