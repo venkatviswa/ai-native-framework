@@ -155,3 +155,14 @@ test('impact: a requirement brings its criteria, and lists lines, tasks, tests a
   assert.ok(!r.hits.some((h) => h.text.startsWith('AC1')), 'R1-only lines are not impacted');
   assert.throws(() => impact({ root, ids: ['--output=x'] }), /not a requirement/);
 });
+
+test('phased delivery: per-sprint task files count as tasks, and stale IDs in them are caught', () => {
+  const root = base({
+    'docs/reminders/tasks.md': '',
+    'docs/reminders/tasks-sprint-1.md': '- [x] T1 Reminder store (R1, AC1)\n',
+    'docs/reminders/tasks-sprint-2.md': '- [ ] T2 Snooze (R2, AC3, AC9)\n',
+  });
+  const { problems } = check({ root, changed: [] });
+  assert.deepEqual(problems, ['docs/reminders/tasks-sprint-2.md cites AC9, not defined in spec.md (stale ID)']);
+  assert.deepEqual(impact({ root, ids: ['R2'] }).tasks, ['T2']);
+});

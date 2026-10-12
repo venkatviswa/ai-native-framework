@@ -101,7 +101,7 @@ export function parseBoundaries(planText) {
   return { allow, ask };
 }
 
-function listFiles(root) {
+export function listFiles(root) {
   const listed = git(['ls-files', '--cached', '--others', '--exclude-standard'], root);
   if (listed !== null) return lines(listed);
   const out = [];
@@ -124,7 +124,7 @@ function changedFiles(root, base) {
   return lines(git(['diff', '--cached', '--name-only', '--diff-filter=ACMRD'], root));
 }
 
-function loadConfig(root) {
+export function loadConfig(root) {
   const file = join(root, '.ainf.json');
   return existsSync(file) ? { ...DEFAULTS, ...JSON.parse(readFileSync(file, 'utf8')) } : { ...DEFAULTS };
 }
@@ -138,10 +138,15 @@ function discoverFeatures(root, config, only) {
     .filter((f) => existsSync(join(root, f, 'spec.md')));
 }
 
-const isTest = (config, f) => !f.startsWith(`${config.featuresDir}/`) && !f.endsWith('.md') && matchesAny(f, config.testPatterns);
+export const isTest = (config, f) => !f.startsWith(`${config.featuresDir}/`) && !f.endsWith('.md') && matchesAny(f, config.testPatterns);
 const isCode = (config, f) => config.codeDirs.some((d) => f === d || f.startsWith(`${d}/`));
 
 const read = (root, file) => (existsSync(join(root, file)) ? readFileSync(join(root, file), 'utf8') : '');
+
+// tasks.md, plus one file per sprint in phased delivery (tasks-sprint-3.md).
+const taskFiles = (root, feat) => (existsSync(join(root, feat))
+  ? readdirSync(join(root, feat)).filter((n) => /^tasks(-[\w.-]+)?\.md$/.test(n)).sort()
+  : []);
 
 export function check({ root = process.cwd(), complete = false, base = null, feature = null, changed = null } = {}) {
   const config = loadConfig(root);
@@ -167,10 +172,11 @@ export function check({ root = process.cwd(), complete = false, base = null, fea
     const defined = new Set([...requirements, ...criteria.keys()]);
     defined.forEach((id) => allDefined.add(id));
     const plan = read(root, `${feat}/plan.md`);
-    const tasksText = read(root, `${feat}/tasks.md`);
+    const taskTexts = taskFiles(root, feat).map((n) => [n, read(root, `${feat}/${n}`)]);
+    const tasksText = taskTexts.map(([, t]) => t).join('\n');
     const tasks = parseTasks(tasksText);
 
-    for (const [file, text] of [['plan.md', plan], ['tasks.md', tasksText]]) {
+    for (const [file, text] of [['plan.md', plan], ...taskTexts]) {
       const stale = [...new Set(text.match(ID_REF) || [])].filter((id) => !defined.has(id));
       if (stale.length) problems.push(`${feat}/${file} cites ${stale.join(', ')}, not defined in spec.md (stale ID)`);
     }
@@ -181,7 +187,8 @@ export function check({ root = process.cwd(), complete = false, base = null, fea
 
     if (tasksText) {
       const cited = new Set(tasks.flatMap((t) => [...t.refs]));
-      for (const t of tasks) if (![...t.refs].some((id) => id.startsWith('R'))) problems.push(`${feat}/tasks.md ${t.id} names no requirement`);
+      const where = taskTexts.length === 1 ? taskTexts[0][0] : 'tasks';
+      for (const t of tasks) if (![...t.refs].some((id) => id.startsWith('R'))) problems.push(`${feat}/${where} ${t.id} names no requirement`);
       for (const r of requirements) if (!cited.has(r)) problems.push(`${r} is in ${feat}/spec.md but no task cites it`);
     } else if (requirements.size) {
       notes.push(`${feat}: no tasks.md yet`);
@@ -258,7 +265,7 @@ export function impact({ root = process.cwd(), ids, feature = null }) {
       if (cites(text).length) hits.push({ file, line: i + 1, text: text.trim() });
     });
   }
-  const tasks = features.flatMap((f) => parseTasks(read(root, `${f}/tasks.md`))
+  const tasks = features.flatMap((f) => parseTasks(taskFiles(root, f).map((n) => read(root, `${f}/${n}`)).join('\n'))
     .filter((t) => [...t.refs].some((id) => expanded.has(id))).map((t) => t.id));
   const commits = lines(git(['log', '--format=%h %s'], root)).filter((l) => cites(l).length);
   return { expanded: [...expanded], hits, tasks, commits };

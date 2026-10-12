@@ -1,0 +1,52 @@
+{
+  "$comment": "Incident profile: the agent is a read-only helper. Start with: claude --settings .claude/settings.incident.json. Adjust the CLI names to your stack; production reads stay on ask.",
+  "permissions": {
+    "allow": [
+      "Edit(docs/incident-*/**)",
+      "Write(docs/incident-*/**)",
+      "Bash(git log:*)",
+      "Bash(git show:*)",
+      "Bash(git diff:*)",
+      "Bash(npm test:*)",
+      "Bash(node scripts/drift-check.mjs:*)"
+    ],
+    "ask": [
+      "Bash(sf data query:*)",
+      "Bash(sf apex tail log:*)",
+      "Bash(sf apex get log:*)",
+      "Bash(kubectl get:*)",
+      "Bash(kubectl describe:*)",
+      "Bash(kubectl logs:*)",
+      "Bash(psql:*)",
+      "Bash(curl:*)"
+    ],
+    "deny": [
+      "Edit(src/**)",
+      "Edit(force-app/**)",
+      "Edit(.githooks/**)",
+      "Edit(.claude/**)",
+      "Bash(git push:*)",
+      "Bash(git commit:*)",
+      "Bash(sf project deploy:*)",
+      "Bash(sf data create:*)",
+      "Bash(sf data update:*)",
+      "Bash(sf data delete:*)",
+      "Bash(sf data upsert:*)",
+      "Bash(sf data import:*)",
+      "Bash(sf apex run:*)",
+      "Bash(sf org login:*)",
+      "Bash(kubectl apply:*)",
+      "Bash(kubectl delete:*)",
+      "Bash(kubectl edit:*)",
+      "Bash(kubectl patch:*)",
+      "Bash(kubectl scale:*)",
+      "Bash(kubectl rollout:*)",
+      "Bash(kubectl exec:*)",
+      "Bash(helm:*)",
+      "Bash(terraform apply:*)",
+      "Bash(terraform destroy:*)",
+      "Read(./.env)",
+      "Read(./.env.*)"
+    ]
+  }
+}

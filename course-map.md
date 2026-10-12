@@ -22,5 +22,11 @@ Where each part of the plugin comes from in *The Architect's AI-Native SDLC*. Wh
 | Capstone CR-1 | `skills/cr`, `skills/cr/template.md`, `drift-check --impact` | v0.2 |
 | Release and learn; method retro | `skills/retro`, plan.md Release and rollback section | v0.2 |
 | One spec, three developers | `skills/split` | v0.2 |
-| Three engagements | `ainf-engagements` plugin | v0.3 (intent discovery variant in v0.1) |
+| Three engagements: discovery, label every line | `ainf-engagements/skills/discovery`, `engagement-check labels` | v0.3 (intent discovery variant in v0.1) |
+| Discovery notes to POC and SOW | `ainf-engagements/skills/poc`, `skills/sow`, `agents/sow-reviewer`, `engagement-check sow` | v0.3 |
+| Phased delivery: phases, baseline, four things that change | `ainf-engagements/skills/phased`, `skills/sprint`, drift-check `tasks-*.md` | v0.3 |
+| Cut a sprint; SIT and UAT from the spec; traceability matrix | `ainf-engagements/skills/sprint`, `skills/sit-uat`, `skills/traceability`, `engagement-check matrix` | v0.3 |
+| Go-live: cutover, rollback, go / no-go | `ainf-engagements/skills/golive` | v0.3 |
+| Red account: incident chain, action boundaries, aftermath | `ainf-engagements/skills/incident`, `templates/settings.incident.json` | v0.3 |
+| Three engagements compared; cloud-native | `ainf-engagements/references/platforms.md` | v0.3 |
 | Tool landscape, governance, adoption, SAFe / Shape Up / Team Topologies | README and docs only; no component | n/a |

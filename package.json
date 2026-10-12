@@ -4,7 +4,7 @@
   "type": "module",
   "scripts": {
     "test": "node --test test/*.test.mjs",
-    "validate": "claude plugin validate . && claude plugin validate plugins/ainf"
+    "validate": "claude plugin validate . && claude plugin validate plugins/ainf && claude plugin validate plugins/ainf-engagements"
   },
   "engines": { "node": ">=20" }
 }
