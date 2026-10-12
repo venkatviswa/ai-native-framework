@@ -283,7 +283,7 @@ sequenceDiagram
     participant F as spec → plan → tasks
     participant B as /ainf:build
     PO->>CR: "R2 gains snooze until 9:00 tomorrow"
-    CR->>CR: record docs/<f>/changes/CR-1.md (evidence, approver)
+    CR->>CR: record docs/feature/changes/CR-1.md (evidence, approver)
     CR->>DC: --impact R2
     DC-->>CR: every line, task, test, commit citing R2, AC3, AC3b…
     CR->>CR: add what IDs can't show (time zones, DST, contracts)
