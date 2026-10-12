@@ -11,7 +11,7 @@ The intent states outcomes and boundaries. How to build it belongs in plan.md; a
 
 1. Read README.md, CLAUDE.md and constitution.md. Pick a short kebab-case feature name and use `docs/<feature>/`.
 2. **Interview, one question at a time, maximum 8**, about: the outcome and its baseline, the users, constraints already decided, what is out of scope, and how we will know it worked. Do not propose a design. If the user is unsure, record it as an open question rather than filling the gap.
-3. When the user says "write it", create `docs/<feature>/intent.md` from `template.md` in this skill's directory. Status starts as `DRAFT`.
+3. When the user says "write it", create `docs/<feature>/intent.md` from the template: the repo's `docs/_templates/intent.md` if it exists (the team's copy), otherwise `<this skill's base directory>/../../templates/docs/intent.md`. Fill every `[placeholder]`; an unknown becomes an open question, never a leftover bracket. Status starts as `DRAFT`.
 4. Under **Open questions**, mark a question `BLOCKING:` when it affects scope, safety, architecture or acceptance. Give every other question an owner and a date.
 5. Sort every line: if it says *how* (a scheduler, a table, a library), move it out. Technology that is already decided stays, as a **Constraint**.
 6. Run Gate 1 (`/ainf:gate 1 docs/<feature>`) and show the result. Do not mark it approved yourself.

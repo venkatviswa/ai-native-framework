@@ -6,7 +6,7 @@ description: Cut an approved plan.md into docs/<feature>/tasks.md - small, order
 # tasks.md: steps an agent can finish and check
 
 1. Read `docs/<feature>/plan.md` and `spec.md`.
-2. Write `docs/<feature>/tasks.md` from `template.md` in this skill's directory. Each line is `- [ ] Tn <step> (R#, AC#)`:
+2. Write `docs/<feature>/tasks.md` from the template: the repo's `docs/_templates/tasks.md` if it exists (the team's copy), otherwise `<this skill's base directory>/../../templates/docs/tasks.md`. Fill every `[placeholder]`; an unknown becomes an open question, never a leftover bracket. Each line is `- [ ] Tn <step> (R#, AC#)`:
    - small enough to review in one sitting, and one commit;
    - names its requirement IDs (drift-check fails a task with none) and the criterion its test proves;
    - test first: the failing test is part of the task, named after its criterion;

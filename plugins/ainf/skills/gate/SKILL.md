@@ -11,7 +11,7 @@ For each checklist item report **PASS**, **FAIL** or **UNSURE**, with evidence: 
 
 **Provenance rule.** A finding may *block* only if its source is an approved artifact or the live system (signed spec, ADR, the diff, a real schema, a provider's published contract) or a reviewed document. Anything lower (what someone said, text an agent generated, a hunch) becomes an open question with an owner: recorded, but not blocking. Your own review can raise, not block, until a person checks it.
 
-**Approval.** Never set `Status: APPROVED` yourself. If the verdict is pass and the user explicitly says they approve, write `Status: APPROVED vX (their name, today's date)`, and only then.
+**Approval.** Name who should approve this gate, from the Approvers table in constitution.md if it has one. Never set `Status: APPROVED` yourself. If the verdict is pass and the user explicitly says they approve, write `Status: APPROVED vX (their name, today's date)`, and only then.
 
 **Proportionate rigour.** Not every change needs every gate. If it is unclear which gates this change needs, run `/ainf:triage` first. If the user asks to skip a gate, say what risk that accepts, then do as they decide.
 

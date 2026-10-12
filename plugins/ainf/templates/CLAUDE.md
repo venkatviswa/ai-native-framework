@@ -1,8 +1,19 @@
 # CLAUDE.md
 
+## Project
+[One paragraph: what this system is, who uses it, and what must never break.]
+
 ## Stack and commands
-- Test: `npm test`
+- Language and framework: [e.g. TypeScript 5, Node 20, Fastify]
+- Test: `[test command, e.g. npm test]`
+- Build: `[build command]`
+- Lint: `[lint command]`
 - Drift check: `node scripts/drift-check.mjs` (dev) · `--complete` before calling a feature done
+
+## Where things live
+- Production code: `[src/]`
+- Tests: `[test/]`
+- Feature docs: `docs/<feature>/` · templates for new ones: `docs/_templates/`
 
 ## Read first
 - constitution.md, then the feature's docs/<feature>/intent.md, spec.md, plan.md, tasks.md, in that order.
@@ -19,6 +30,7 @@
 - Put personal data in logs.
 - Change migrations or schema without human approval.
 - Mark a gate approved yourself. Only a named person approves.
+- [Project-specific never, e.g. "Call the payments sandbox from tests; use the fake in test/fakes/".]
 
 ## Enforced elsewhere
 - `.githooks/pre-commit` runs tests and drift-check; `.githooks/commit-msg` requires `T# (R#)` for code changes.

@@ -134,6 +134,7 @@ function discoverFeatures(root, config, only) {
   const dir = join(root, config.featuresDir);
   if (!existsSync(dir)) return [];
   return readdirSync(dir)
+    .filter((name) => !name.startsWith('_')) // docs/_templates and other non-features
     .map((name) => `${config.featuresDir}/${name}`)
     .filter((f) => existsSync(join(root, f, 'spec.md')));
 }

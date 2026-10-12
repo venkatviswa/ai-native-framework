@@ -9,7 +9,7 @@ After a spec is approved, it changes only through a change request. Agents propo
 
 ## 1. Record it
 
-Create `docs/<feature>/changes/CR-<n>.md` from `template.md` in this skill's directory: the request, the evidence behind it, who approved it, and the re-measure date if it targets the outcome. If no one has approved it yet, stop at this step and say so.
+Create `docs/<feature>/changes/CR-<n>.md` from the template: the repo's `docs/_templates/cr.md` if it exists (the team's copy), otherwise `<this skill's base directory>/../../templates/docs/cr.md`. Fill every `[placeholder]`; an unknown becomes an open question, never a leftover bracket: the request, the evidence behind it, who approved it, and the re-measure date if it targets the outcome. If no one has approved it yet, stop at this step and say so.
 
 ## 2. Impact, from the files
 

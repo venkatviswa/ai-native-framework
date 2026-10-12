@@ -166,3 +166,26 @@ test('phased delivery: per-sprint task files count as tasks, and stale IDs in th
   assert.deepEqual(problems, ['docs/reminders/tasks-sprint-2.md cites AC9, not defined in spec.md (stale ID)']);
   assert.deepEqual(impact({ root, ids: ['R2'] }).tasks, ['T2']);
 });
+
+test('init stamps docs/_templates, never overwrites, and drift-check skips them', () => {
+  const root = repo({ 'CLAUDE.md': '# ours\n' });
+  execFileSync('node', [join(pluginRoot, 'scripts/init.mjs'), root], { stdio: 'ignore' });
+  for (const n of ['intent', 'spec', 'plan', 'tasks', 'cr']) {
+    assert.equal(readFileSync(join(root, `docs/_templates/${n}.md`), 'utf8'),
+      readFileSync(join(pluginRoot, `templates/docs/${n}.md`), 'utf8'));
+  }
+  assert.equal(readFileSync(join(root, 'CLAUDE.md'), 'utf8'), '# ours\n');
+  const { problems, features } = check({ root, changed: [] });
+  assert.deepEqual(features, []);
+  assert.deepEqual(problems, []);
+});
+
+test('templates keep the line formats drift-check parses', () => {
+  const tpl = (n) => readFileSync(join(pluginRoot, `templates/docs/${n}.md`), 'utf8');
+  const { requirements, criteria } = parseSpec(tpl('spec'));
+  assert.deepEqual([...requirements], ['R1', 'R2', 'R3']);
+  assert.deepEqual(criteria.get('AC3'), ['R3']);
+  const root = repo({ 'docs/f/spec.md': tpl('spec'), 'docs/f/plan.md': tpl('plan'), 'docs/f/tasks.md': tpl('tasks') });
+  const { problems } = check({ root, changed: [] });
+  assert.deepEqual(problems, []);
+});

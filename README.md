@@ -22,6 +22,7 @@ Two plugins in one marketplace:
 - [Principles](#principles)
 - [Installation](#installation)
 - [Quick start](#quick-start)
+- [Reference docs](#reference-docs)
 - [Architecture](#architecture)
 - [Skill catalog: `ainf`](#skill-catalog-ainf)
 - [Skill catalog: `ainf-engagements`](#skill-catalog-ainf-engagements)
@@ -155,6 +156,17 @@ When the requirement changes after release:
 ```
 
 The artifact skills also trigger on their own when the conversation calls for them. Saying "I want to add due-date reminders…" starts the intent interview.
+
+---
+
+## Reference docs
+
+Longer explanations live in [`docs/`](docs/README.md), one page per idea, so this README can stay an overview.
+
+- [**Concepts: IDs, drift and drift-check**](docs/concepts.md): why every artifact has stable IDs, the two kinds of drift, every drift-check mode and how to fix what it reports, guidance vs enforcement.
+- **Artifact guides.** Each covers what the file is for, who owns it, every section, and weak vs strong examples:
+  [constitution.md](docs/artifacts/constitution.md) · [CLAUDE.md](docs/artifacts/claude-md.md) · [intent.md](docs/artifacts/intent.md) · [spec.md](docs/artifacts/spec.md) · [plan.md](docs/artifacts/plan.md) · [tasks.md](docs/artifacts/tasks.md) · [CR-n.md](docs/artifacts/change-request.md)
+- **Placeholder templates** for each artifact are in [`plugins/ainf/templates/`](plugins/ainf/templates/). `/ainf:init` copies them into your repo, and the skills fill them in. See [How the templates reach your project](docs/README.md#how-the-templates-reach-your-project).
 
 ---
 
@@ -450,8 +462,8 @@ AI-native SDLC artifacts in this repo (files are the source of truth; read them 
 
 | File | Job |
 |---|---|
-| `constitution.md` | Project principles. Every plan runs a constitution check against them. Five starter rules; replace them with your team's. |
-| `CLAUDE.md` | Operating instructions the agent reads every session: Stack and commands, Read first, Always, Never, Enforced elsewhere. |
+| `constitution.md` | Project principles and the approver per gate. Every plan runs a constitution check against them. Five starter rules plus `[placeholders]` for yours. |
+| `CLAUDE.md` | Operating instructions the agent reads every session: Project, Stack and commands, Where things live, Read first, Always, Never, Enforced elsewhere. Init fills the stack placeholders from your repo. |
 | `.ainf.json` | Where features, code and tests live, and the test command. |
 | `scripts/drift-check.mjs` | The checker, a copy owned by the team. |
 | `.githooks/pre-commit` | `drift-check --run-tests` |
@@ -460,9 +472,9 @@ AI-native SDLC artifacts in this repo (files are the source of truth; read them 
 | `.claude/settings.json` | **Code** profile. It may edit `src/**` and `test/**`, run tests, and use git add and commit. It asks before touching plan, tasks, constitution or migrations. It can never push, use `--no-verify`, edit the hooks or drift-check, or read `.env`. |
 | `.claude/settings.explore.json` | **Explore** profile: read and run tests only. |
 | `.claude/settings.release.json` | **Release** profile: no edits; deploys ask every time. |
-| `docs/` | Where features live. |
+| `docs/_templates/` | intent, spec, plan, tasks and CR templates with `[placeholders]`. The skills use these over the plugin's copies, so edit them to set your house style (keep the ID line formats). drift-check skips `_`-prefixed folders. |
 
-Start Claude Code with a specific profile by running `claude --settings .claude/settings.explore.json`. The incident skill adds `.claude/settings.incident.json` when you need it.
+Init copies these files as they are and never overwrites one, then fills the project-specific placeholders it can read from the repo and asks you about the rest. Start Claude Code with a specific profile by running `claude --settings .claude/settings.explore.json`. The incident skill adds `.claude/settings.incident.json` when you need it.
 
 ---
 
@@ -519,17 +531,19 @@ Action boundaries apply to code and test files. Config, CI and hook files are gu
 .claude-plugin/marketplace.json      the marketplace (two plugins)
 plugins/ainf/                        core plugin
   .claude-plugin/plugin.json
-  skills/<name>/SKILL.md             12 skills, each with its own templates and references
+  skills/<name>/SKILL.md             12 skills (spec also has references/ears.md)
   agents/*.md                        4 read-only reviewers
   scripts/                           drift-check.mjs · init.mjs · artifact-index.mjs
   hooks/hooks.json                   SessionStart → artifact index
   templates/                         constitution, CLAUDE.md, githooks, CI, permission profiles
+  templates/docs/                    intent, spec, plan, tasks, cr placeholder templates
 plugins/ainf-engagements/            engagements plugin
   skills/<name>/SKILL.md             9 skills with templates
   agents/sow-reviewer.md
   scripts/engagement-check.mjs
   references/platforms.md            Salesforce and cloud-native comparison
   templates/settings.incident.json   read-only incident profile
+docs/                                reference: concepts.md and one guide per artifact
 test/                                node:test suites for both scripts, init and the index
 course-map.md                        which course chapter each component comes from
 CHANGELOG.md                         release notes

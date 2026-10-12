@@ -10,7 +10,7 @@ Review a plan against the spec, not against whether it sounds right. Every line 
 ## Write
 
 1. Read CLAUDE.md, constitution.md, `docs/<feature>/intent.md` and `spec.md`. **Explore the code first** and reuse what exists (queues, clocks, providers, stores). Do not write implementation code.
-2. Create `docs/<feature>/plan.md` from `template.md` in this skill's directory:
+2. Create `docs/<feature>/plan.md` from the template: the repo's `docs/_templates/plan.md` if it exists (the team's copy), otherwise `<this skill's base directory>/../../templates/docs/plan.md`. Fill every `[placeholder]`; an unknown becomes an open question, never a leftover bracket:
    - **Constitution check**: pass or fail per rule, with a reason. A failure needs an approved exception, not silence.
    - **Data model**: entities, keys, time zones, retention. The model must be able to *enforce* the spec (e.g. recipient and occurrence in a unique key). Wrong here is the costliest rework.
    - **Contracts**: request/response shapes, error codes, versioning. Agents and other teams code against these.

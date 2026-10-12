@@ -17,6 +17,7 @@ const ARTIFACTS = ['intent.md', 'poc-spec.md', 'spec.md', 'plan.md', 'sow.md', '
 const isTasks = (n) => /^tasks(-[\w.-]+)?\.md$/.test(n);
 const rows = [];
 for (const name of readdirSync(dir).sort()) {
+  if (name.startsWith('_')) continue; // docs/_templates
   const files = ARTIFACTS.filter((f) => existsSync(join(dir, name, f)));
   const taskFiles = existsSync(join(dir, name)) && statSync(join(dir, name)).isDirectory()
     ? readdirSync(join(dir, name)).filter(isTasks) : [];

@@ -6,6 +6,14 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ### Added
 - MIT license.
+- Reference docs in `docs/`: `concepts.md` (IDs, drift, drift-check, guidance vs enforcement) and one guide per artifact (constitution, CLAUDE.md, intent, spec, plan, tasks, change request), linked from the README.
+- `/ainf:init` stamps placeholder templates for intent, spec, plan, tasks and CR into `docs/_templates/`. The skills use the repo's copy when it exists, so a team sets its house style once.
+- `constitution.md` template: project-rule placeholders, an Approvers table per gate, and who may change the file. `/ainf:gate` names the approver from it.
+- `CLAUDE.md` template: Project and Where things live sections, with stack placeholders that init fills from the repo.
+
+### Changed
+- The artifact templates moved from `skills/<name>/template.md` to `plugins/ainf/templates/docs/<name>.md`, so each one lives in a single place.
+- drift-check and the session index skip folders under `docs/` whose names start with `_`.
 
 ### Fixed
 - README: the change-request sequence diagram failed to render on GitHub (a semicolon ends a Mermaid statement).

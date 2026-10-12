@@ -9,7 +9,7 @@ The agent's first spec always looks finished. It is not. Write it, then attack i
 
 ## Write
 
-Read `docs/<feature>/intent.md` (stop and say so if it has an unanswered BLOCKING question). Create `docs/<feature>/spec.md` from `template.md` in this skill's directory:
+Read `docs/<feature>/intent.md` (stop and say so if it has an unanswered BLOCKING question). Create `docs/<feature>/spec.md` from the template: the repo's `docs/_templates/spec.md` if it exists (the team's copy), otherwise `<this skill's base directory>/../../templates/docs/spec.md`. Fill every `[placeholder]`; an unknown becomes an open question, never a leftover bracket:
 
 - **Definitions** for every term whose meaning changes behaviour: time and time zones, identity, units, "occurrence".
 - **Requirements** numbered `R1`, `R2`... at the start of the line, each in an EARS pattern (see `references/ears.md`). One behaviour per requirement.

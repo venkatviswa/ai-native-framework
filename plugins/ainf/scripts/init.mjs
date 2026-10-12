@@ -22,6 +22,9 @@ const FILES = [
   ['templates/claude/settings.json', '.claude/settings.json'],
   ['templates/claude/settings.explore.json', '.claude/settings.explore.json'],
   ['templates/claude/settings.release.json', '.claude/settings.release.json'],
+  // Placeholder templates for each feature artifact. Skills use the repo's copy when it exists,
+  // so a team edits these once instead of the plugin. The leading _ keeps drift-check off them.
+  ...['intent', 'spec', 'plan', 'tasks', 'cr'].map((n) => [`templates/docs/${n}.md`, `docs/_templates/${n}.md`]),
 ];
 
 const created = [];
@@ -34,7 +37,6 @@ for (const [from, to, mode] of FILES) {
   if (mode) chmodSync(dest, mode);
   created.push(to);
 }
-mkdirSync(join(target, 'docs'), { recursive: true });
 
 let hooks = 'not a git repository: run `git init`, then `git config core.hooksPath .githooks`';
 try {
