@@ -15,7 +15,7 @@
     {
       "name": "ainf-engagements",
       "source": "./plugins/ainf-engagements",
-      "description": "Consulting engagements on the same chain: discovery to POC to SOW, phased delivery with sprints, SIT, UAT, traceability matrix and go-live, and read-only incident response. Requires ainf.",
+      "description": "Consulting engagements on the same chain: discovery to POC to SOW, phased delivery with sprints, SIT, UAT, traceability and go-live, an engagement workspace of ID'd ledgers with readouts generated from them, read-only incident response and red-account escalations. Requires ainf.",
       "version": "0.6.1"
     }
   ]

@@ -1,7 +1,7 @@
 {
   "name": "ainf-engagements",
   "version": "0.6.1",
-  "description": "The AI-native SDLC in consulting engagements: discovery to POC to SOW, phased delivery with sprints, SIT, UAT, traceability and go-live, and read-only incident response with a named human on every production change. Requires the ainf plugin.",
+  "description": "The AI-native SDLC in consulting engagements: discovery to POC to SOW, phased delivery with sprints, SIT, UAT, traceability and go-live, an engagement workspace of ID'd ledgers with readouts generated from them, read-only incident response and red-account escalations, with a named human on every production change. Requires the ainf plugin.",
   "author": { "name": "Venkat Viswanathan" },
   "license": "MIT",
   "keywords": ["consulting", "discovery", "sow", "phased-delivery", "uat", "incident", "salesforce", "traceability"]

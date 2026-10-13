@@ -18,6 +18,7 @@ The team. Update it when the stack, the commands or the layout changes, or when 
 | Stack and commands | The real test, build and lint commands. The agent runs these, so they must work as written. |
 | Where things live | Code, tests, feature docs and templates. |
 | Read first | constitution.md, then the feature's intent, spec, plan and tasks. Keeps the agent starting from files, not memory. |
+| Things the agent gets wrong | One line per mistake that has happened twice: the mistake, the fix, how to check. The second-time rule from REVIEW.md and `/ainf:retro`; the one section that is meant to grow. |
 | Always / Never | Short, checkable house rules. Add project-specific ones under the defaults. |
 | Enforced elsewhere | Which rules hooks, permissions and CI back up. |
 

@@ -558,7 +558,7 @@ plugins/ainf/                        core plugin
   agents/*.md                        4 read-only reviewers
   scripts/                           drift-check.mjs · init.mjs · artifact-index.mjs
   hooks/hooks.json                   SessionStart → artifact index
-  templates/                         constitution, CLAUDE.md, githooks, CI, permission profiles
+  templates/                         constitution, CLAUDE.md, REVIEW.md, PR template, githooks, CI, permission profiles
   templates/docs/                    intent, spec, plan, tasks, stories, cr placeholder templates
 plugins/ainf-engagements/            engagements plugin
   skills/<name>/SKILL.md             12 skills with templates

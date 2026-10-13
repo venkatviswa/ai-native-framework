@@ -18,6 +18,11 @@ Sync with the course at Version 13.
 - `/ainf:gate 5` reports against REVIEW.md; `/ainf:retro` applies the second-time rule.
 - Incident template: sev-1/2/3 definitions and an accountable owner.
 - README: an Adoption order section.
+- Reference docs: the CLAUDE.md guide covers "Things the agent gets wrong"; the docs index lists REVIEW.md and the pull-request template.
+
+### Changed
+- `/ainf:gate 5` falls back to REVIEW.md's defaults in repos that have none.
+- The `ainf-engagements` marketplace and plugin descriptions name the workspace, readouts and escalations added in 0.6.0.
 
 ## [0.6.0] - 2026-10-12
 

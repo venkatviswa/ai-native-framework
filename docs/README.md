@@ -14,6 +14,8 @@ Background for people using the framework: what each artifact is for, how to fil
 |---|---|---|---|---|
 | constitution.md | [guide](artifacts/constitution.md) | [template](../plugins/ainf/templates/constitution.md) | repo root | all plans check it |
 | CLAUDE.md | [guide](artifacts/claude-md.md) | [template](../plugins/ainf/templates/CLAUDE.md) | repo root | n/a |
+| REVIEW.md | in the template | [template](../plugins/ainf/templates/REVIEW.md) | repo root | 5 reports against it |
+| PULL_REQUEST_TEMPLATE.md | in the template | [template](../plugins/ainf/templates/github/PULL_REQUEST_TEMPLATE.md) | `.github/` | 5 evidence |
 | intent.md | [guide](artifacts/intent.md) | [template](../plugins/ainf/templates/docs/intent.md) | `docs/<feature>/` | 1 |
 | spec.md | [guide](artifacts/spec.md) | [template](../plugins/ainf/templates/docs/spec.md) | `docs/<feature>/` | 2 |
 | plan.md | [guide](artifacts/plan.md) | [template](../plugins/ainf/templates/docs/plan.md) | `docs/<feature>/` | 3 |
