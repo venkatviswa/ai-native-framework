@@ -75,7 +75,7 @@ This framework is the operational form of the course. Its skills write the artif
 
 - [Claude Code](https://docs.claude.com/en/docs/claude-code) (CLI, desktop or IDE extension).
 - **Node.js 20+** and **git** in the repository where you'll use it. The scripts have no dependencies.
-- Access to this repository. It is private, so marketplace install needs your GitHub credentials, for example from `gh auth login`.
+- Access to GitHub. The repository is public.
 
 ### Install from the marketplace
 
@@ -478,7 +478,9 @@ AI-native SDLC artifacts in this repo (files are the source of truth; read them 
 | File | Job |
 |---|---|
 | `constitution.md` | Project principles and the approver per gate. Every plan runs a constitution check against them. Five starter rules plus `[placeholders]` for yours. |
-| `CLAUDE.md` | Operating instructions the agent reads every session: Project, Stack and commands, Where things live, Read first, Always, Never, Enforced elsewhere. Init fills the stack placeholders from your repo. |
+| `CLAUDE.md` | Operating instructions the agent reads every session: Project, Stack and commands, Where things live, Read first, Things the agent gets wrong (the second-time rule), Always, Never, Enforced elsewhere. Init fills the stack placeholders from your repo. |
+| `REVIEW.md` | The review standard: three passes (bugs, security, compliance), severity meaning, at most five nits, and the two questions a human answers. `/ainf:gate 5` reports against it. |
+| `.github/PULL_REQUEST_TEMPLATE.md` | A change request mapped to the chain: tasks, requirement and criterion IDs, files inside the boundaries, evidence pasted before review, the REVIEW.md passes. |
 | `.ainf.json` | Where features, code and tests live, and the test command. |
 | `scripts/drift-check.mjs` | The checker, a copy owned by the team. |
 | `.githooks/pre-commit` | `drift-check --run-tests` |
@@ -582,6 +584,20 @@ Claude keeps each skill's and agent's one-line description in context so it can 
 
 If you don't do consulting work, install only `ainf`.
 
+## Adoption order
+
+The plays depend on each other, so adopt them in dependency order rather than chapter order, one feature and one team at a time, with a pass bar set before you start (defects caught at a gate before code, review time per change, escaped defects, drift findings per pull request, the feature's own outcome).
+
+| Step | Plays | What it needs first |
+|---|---|---|
+| 1 | an intent.md for every piece of work; a one-page CLAUDE.md; one verify command that fails loudly; one enforced hook (`/ainf:init` gives you the pre-commit); plan mode before code | nothing |
+| 2 | `/ainf:triage` on every change; `/ainf:spec` with EARS and criterion IDs; the reviewer subagents | step 1 |
+| 3 | REVIEW.md and the PR template; `/ainf:gate 5` with the two human questions; `drift-check` as a required CI check | steps 1–2 |
+| 4 | change requests (`/ainf:cr`), drift review, stories for the backlog | step 3 |
+| 5 | release and learn: measure the intent.md outcome, `/ainf:retro`, the second-time rule | everything above |
+
+Keep the exit: if the numbers do not move in two intervals, you lose two intervals, not a transformation.
+
 ## Design decisions
 
 - **Plain markdown in the repo, not a service.** Artifacts are reviewed in pull requests, diffed across versions and owned by the team. There is no lock-in: delete the plugin and the files still make sense.
@@ -605,6 +621,7 @@ While the version is `0.x`, minor releases may still adjust conventions, and eac
 
 | Version | Date | Summary |
 |---|---|---|
+| **0.6.1** | 2026-10-13 | Sync with course Version 13: `drift-check --base <ref>` exits 2 with git's error when the ref cannot be compared (it used to pass on an empty diff); `REVIEW.md` and a pull-request template added to `/ainf:init`; CLAUDE.md gains "Things the agent gets wrong" and the second-time rule; Gate 5 reports against REVIEW.md with the two human questions and the five-nit cap; the incident template defines sev-1/2/3 and names an accountable owner; an Adoption order section. |
 | **0.6.0** | 2026-10-12 | Engagement workspace: one ledger per kind of thing (facts, decisions, actions, questions, risks, gaps, systems) with IDs like `F-3` and `D-2`, a status snapshot and a prepend-only journal, checked by `engagement-check ledger`. New skills: workspace, escalation (red accounts: verify first, contain, cure, prove it held, exit) and readout (client updates generated from the ledgers). Discovery and POC run on the workspace; incident covers acute outages and hands off to escalation. **Convention change:** incident hypotheses and evidence are `H-1` and `E-1` (were `H1`, `E1`). Adds `docs/engagements.md` and SAFe, Shape Up and Team Topologies mappings. |
 | **0.5.0** | 2026-10-12 | Namespaced IDs: a spec.md with `ID prefix: REM` owns `REM-R1`, `REM-AC1`, `REM-T1`, so two features can both have an `AC1`. Short IDs still work inside a feature's own docs, and repos without prefixes behave as before, with a note when unprefixed features share IDs. New `/ainf:stories` skill and `drift-check --stories [--csv]`: backlog keys mapped to requirement IDs, with coverage per story. drift-check reads every spec even with `--feature`, so cross-feature citations resolve. engagement-check understands prefixes. |
 | **0.4.0** | 2026-10-12 | Reference docs in `docs/`: concepts (IDs, drift, drift-check) and a guide per artifact. Placeholder templates for intent, spec, plan, tasks and CR now live in `plugins/ainf/templates/docs/`; `/ainf:init` stamps them into `docs/_templates/` and the skills prefer the repo's copy. Constitution gains an Approvers table used by `/ainf:gate`; CLAUDE.md gains Project and Where things live. drift-check skips `_`-prefixed doc folders. Adds the MIT license. |

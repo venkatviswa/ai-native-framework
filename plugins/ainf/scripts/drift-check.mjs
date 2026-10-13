@@ -71,6 +71,14 @@ function git(args, cwd) {
   try { return execFileSync('git', args, { cwd, encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] }); } catch { return null; }
 }
 
+// Like git(), but surfaces git's own message on stderr before returning null, for commands whose
+// failure must not look like "nothing changed".
+function gitStrict(args, cwd) {
+  const r = spawnSync('git', args, { cwd, encoding: 'utf8' });
+  if (r.status !== 0) { process.stderr.write((r.stderr || '').trim() + '\n'); return null; }
+  return r.stdout;
+}
+
 const lines = (s) => (s || '').split('\n').map((l) => l.trim()).filter(Boolean);
 
 function section(text, heading) {
@@ -156,10 +164,15 @@ export function listFiles(root) {
   return out;
 }
 
+class BaseError extends Error {}
+
 function changedFiles(root, base) {
   if (base) {
     if (base.startsWith('-')) throw new Error(`--base must be a git ref, got "${base}"`);
-    return lines(git(['diff', '--name-only', `${base}...HEAD`], root));
+    // A base that cannot be compared must fail loudly: a silent empty diff would pass CI with nothing checked.
+    const out = gitStrict(['diff', '--name-only', `${base}...HEAD`], root);
+    if (out === null) throw new BaseError(`--base ${base}: git cannot compare it with HEAD (unknown ref, or a shallow clone; fetch it first)`);
+    return lines(out);
   }
   return lines(git(['diff', '--cached', '--name-only', '--diff-filter=ACMRD'], root));
 }
@@ -470,7 +483,10 @@ function main(argv) {
   }
 
   const complete = argv.includes('--complete');
-  const { problems, notes } = check({ root, complete, base: arg('--base'), feature: arg('--feature') });
+  let result;
+  try { result = check({ root, complete, base: arg('--base'), feature: arg('--feature') }); }
+  catch (e) { if (e instanceof BaseError) { console.error(`drift-check: ${e.message}`); return 2; } throw e; }
+  const { problems, notes } = result;
   console.log(`drift-check (${complete ? 'complete' : 'dev'}): ${problems.length} problem(s)`);
   for (const p of problems) console.log(`  - ${p}`);
   for (const n of notes) console.log(`  (${n})`);

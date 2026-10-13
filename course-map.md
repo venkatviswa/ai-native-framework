@@ -32,5 +32,9 @@ Where each part of the plugin comes from in *The Architect's AI-Native SDLC*. Wh
 | Red account beyond the restore: contain, cure, prove it held | `ainf-engagements/skills/escalation` (incident hands off to it) | v0.6 |
 | Three engagements compared; cloud-native | `ainf-engagements/references/platforms.md` | v0.3 |
 | SAFe / Shape Up / Team Topologies | `docs/mappings/` | v0.6 |
-| Tool landscape, governance, adoption | README and docs only; no component | n/a |
+| Gate 5: the two human questions, the nit cap (REVIEW.md) | `templates/REVIEW.md`, `skills/gate` (Gate 5), `templates/github/PULL_REQUEST_TEMPLATE.md` | v0.6.1 |
+| Why the method missed; the second-time rule | `skills/retro`, `templates/CLAUDE.md` "Things the agent gets wrong" | v0.2, rule v0.6.1 |
+| Incident record: severity, closing the loop | `ainf-engagements/skills/incident/template.md` | v0.3, severity v0.6.1 |
+| Adoption in dependency order | README "Adoption order" | v0.6.1 |
+| Tool landscape, governance | README and docs only; no component | n/a |
 | Field practice, not a course chapter: engagement documents drift like code | `ainf-engagements/skills/workspace`, `templates/workspace/`, `skills/readout`, `engagement-check ledger`, `docs/engagements.md` | v0.6 |

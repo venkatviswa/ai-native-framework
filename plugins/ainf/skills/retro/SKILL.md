@@ -28,3 +28,5 @@ There can be more than one cause. Rank them by how much each explains.
 ## 3. Output
 
 Write `docs/<feature>/retro-<date>.md` with: evidence (sourced), hypotheses considered and how each was kept or ruled out, the causes with their artifact, and the changes proposed: each one a targeted edit or a CR, with an owner and a re-measure date. Add a constitution rule only when the lesson is an enduring policy, not for every incident.
+
+**The second-time rule.** If the same mistake has now happened twice, the fix is a missing line, not a backlog item: add it to CLAUDE.md under "Things the agent gets wrong" (mistake, fix, how to check), or to a skill or a hook, in this retro.

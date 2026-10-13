@@ -53,3 +53,5 @@ Review the diff on two axes. Dispatch the `ainf:spec-reviewer` and `ainf:standar
 - If behaviour changed, spec.md and plan.md changed first.
 - For a story: integration evidence exists, not only component tests.
 - Run `node scripts/drift-check.mjs` (and `--complete` if the feature is being called done) and include the output.
+
+Report per REVIEW.md: findings ranked by severity, at most five nits (summarise the rest as a count), and end with the two questions only a person answers: **Is this the change the plan intended? Is the risk acceptable?** Line-by-line human review is reserved for the paths REVIEW.md names.

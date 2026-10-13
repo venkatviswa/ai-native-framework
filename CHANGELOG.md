@@ -4,6 +4,21 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ## [Unreleased]
 
+## [0.6.1] - 2026-10-13
+
+Sync with the course at Version 13.
+
+### Fixed
+- `drift-check --base <ref>`: when git cannot compare the ref (unknown ref, shallow clone), the check now prints git's error and exits 2. It used to treat the failure as an empty diff and pass, which let CI go green with nothing checked.
+
+### Added
+- `templates/REVIEW.md` (copied by `/ainf:init`): three passes, severity meaning, at most five nits, the two questions a human answers, the second-time rule.
+- `templates/github/PULL_REQUEST_TEMPLATE.md` (copied to `.github/`): tasks, requirement and criterion IDs, files inside the boundaries, evidence before review.
+- CLAUDE.md template: a "Things the agent gets wrong" section and the second-time rule; a Never line against self-approving reviews.
+- `/ainf:gate 5` reports against REVIEW.md; `/ainf:retro` applies the second-time rule.
+- Incident template: sev-1/2/3 definitions and an accountable owner.
+- README: an Adoption order section.
+
 ## [0.6.0] - 2026-10-12
 
 Engagement workspace, escalations and readouts.

@@ -14,6 +14,8 @@ const target = resolve(process.argv[2] || process.cwd());
 const FILES = [
   ['templates/constitution.md', 'constitution.md'],
   ['templates/CLAUDE.md', 'CLAUDE.md'],
+  ['templates/REVIEW.md', 'REVIEW.md'],
+  ['templates/github/PULL_REQUEST_TEMPLATE.md', '.github/PULL_REQUEST_TEMPLATE.md'],
   ['templates/ainf.json', '.ainf.json'],
   ['templates/githooks/pre-commit', '.githooks/pre-commit', 0o755],
   ['templates/githooks/commit-msg', '.githooks/commit-msg', 0o755],

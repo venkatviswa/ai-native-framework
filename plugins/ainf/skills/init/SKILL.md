@@ -1,6 +1,6 @@
 ---
 name: init
-description: Scaffold a repository for the AI-native SDLC: constitution.md, CLAUDE.md, artifact templates in docs/_templates/, drift-check, git hooks, CI workflow and per-step permission profiles. Use when the user asks to set up, bootstrap or initialise a repo for the ainf workflow.
+description: Scaffold a repository for the AI-native SDLC: constitution.md, CLAUDE.md, REVIEW.md, a pull-request template, artifact templates in docs/_templates/, drift-check, git hooks, CI workflow and per-step permission profiles. Use when the user asks to set up, bootstrap or initialise a repo for the ainf workflow.
 disable-model-invocation: true
 ---
 

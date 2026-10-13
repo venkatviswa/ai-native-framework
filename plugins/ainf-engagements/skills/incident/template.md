@@ -1,6 +1,7 @@
 # incident.md: [id] [one-line summary]
 
-Status: OPEN · Severity: [1-4] · Declared: [time, time zone] by [name]
+Status: OPEN · Severity: [sev-1 | sev-2 | sev-3] · Declared: [time, time zone] by [name] · Accountable owner: [one named person]
+<!-- sev-1: production down or data loss; immediate response; rollback or hotfix by a named human. sev-2: degraded but usable; fix within the working day. sev-3: cosmetic or low impact; scheduled through the normal chain. -->
 Commander: [name] · Operations lead: [name] · Communications lead: [name] · Agent: read-only helper
 
 ## Restore first

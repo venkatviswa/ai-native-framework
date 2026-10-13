@@ -18,6 +18,10 @@
 ## Read first
 - constitution.md, then the feature's docs/<feature>/intent.md, spec.md, plan.md, tasks.md, in that order.
 
+## Things the agent gets wrong
+<!-- One entry per mistake that happened twice: the mistake, the fix, how to check for it. This is the one section that must grow (REVIEW.md, the second-time rule). -->
+- [mistake] → [fix] → [how to check]
+
 ## Always
 - Write a failing test before code. Name tests after the criterion they prove: `AC3: snooze 4 h sends one follow-up`.
 - One task per commit. Subject names the task and requirement: `T3 (R1): scan due tasks`.
@@ -31,6 +35,7 @@
 - Put personal data in logs.
 - Change migrations or schema without human approval.
 - Mark a gate approved yourself. Only a named person approves.
+- Approve or block a review on your own findings. Reviews follow REVIEW.md: three passes, at most five nits, two questions for the human.
 - [Project-specific never, e.g. "Call the payments sandbox from tests; use the fake in test/fakes/".]
 
 ## Enforced elsewhere

@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { execFileSync } from 'node:child_process';
+import { execFileSync, spawnSync } from 'node:child_process';
 import { mkdirSync, mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
@@ -282,4 +282,16 @@ test('the stories template parses once its keys are filled', () => {
   });
   assert.deepEqual(check({ root, changed: [] }).problems, []);
   assert.equal(stories({ root }).rows.length, 3);
+});
+
+test('--base that git cannot compare exits 2 instead of passing on an empty diff', () => {
+  const dir = mkdtempSync(join(tmpdir(), 'ainf-base-'));
+  const g = (args) => execFileSync('git', ['-c', 'user.name=t', '-c', 'user.email=t@t', ...args], { cwd: dir, stdio: 'ignore' });
+  g(['init', '-q']);
+  mkdirSync(join(dir, 'docs', 'f'), { recursive: true });
+  writeFileSync(join(dir, 'docs', 'f', 'spec.md'), '# spec\n- R1 When x, the system shall y.\n- AC1 (R1) Given a When b Then c\n');
+  g(['add', '-A']); g(['commit', '-qm', 'init']);
+  const r = spawnSync(process.execPath, [join(pluginRoot, 'scripts', 'drift-check.mjs'), '--base', 'no-such-ref'], { cwd: dir, encoding: 'utf8' });
+  assert.equal(r.status, 2, r.stdout + r.stderr);
+  assert.match(r.stderr, /cannot compare/);
 });
